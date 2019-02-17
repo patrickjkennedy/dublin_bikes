@@ -3,7 +3,8 @@
 This repository contains a script that queries the JCDecaux Dublin Bikes API and writes the response to a MySQL database. 
 Please note that the database needs to be created in advance of running the script, with the column names specified in the
 script. For further discussion around the database and the reasoning of it's column types etc., please see this
-Google Doc.
+Google Document:
+https://docs.google.com/document/d/1S93vuhNOTOamthBR9mcUg1IaO3tfUsxxOa3TP0FvkL4/edit?usp=sharing
 
 ## API Key
 I've removed my personal API key, as well as other sensitive credentials from the script. Before running the script yourself,

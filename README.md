@@ -24,3 +24,9 @@ Where `*/5 * * * * ` specifies that the program is to be ran every 5 minutes,
 `/anaconda3/envs/scraper_prototype/bin/python` is the Python interpreter from the Conda environment we want to use,
 And `/Users/patrick/hdip/comp30830_software_engineering/scraper_prototype/scraper.py` is the full path to the script.
 
+## Creating a Conda environment from an environment.yml
+Run the following command from within your cloned repository to create the `scraper_prototype` virtual environment:
+```
+conda env create -f environment.yml
+```
+

@@ -17,6 +17,7 @@ mydb = mysql.connector.connect(
 url_bikes = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey={API-KEY}"
 url_weather = 'https://api.openweathermap.org/data/2.5/weather?id=7778677&appid={API-KEY}'
 
+
 response_bikes = requests.get(url_bikes)
 data_bikes = response_bikes.json()
 
@@ -31,9 +32,9 @@ sql_bikes = "INSERT INTO table_name (number, name, address, latitude, longitude,
 
 sql_weather = "INSERT INTO table_name (coord_lon, coord_lat, weather_id, weather_main, weather_description, "\
             "weather_icon, base, main_temp, main_pressure, main_humidity, main_temp_min, main_temp_max, "\
-            "visibility, wind_speed, wind_deg, clouds_all, sys_type, sys_id, sys_message, sys_country, "\
-            "sys_sunrise, sys_sunset, city_id, city_name, cod, created_at, updated_at) "\
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            "visibility, wind_speed, wind_deg, clouds_all, dt, sys_type, sys_id, sys_message, sys_country, "\
+            "sys_sunrise, sys_sunset, city_id, city_name, cod) "\
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
 mycursor = mydb.cursor()
 
@@ -49,10 +50,10 @@ val2=(data_weather['coord']['lon'],data_weather['coord']['lat'],data_weather['we
   data_weather['weather'][0]['description'],data_weather['weather'][0]['icon'],data_weather['base'],data_weather['main']['temp'],
   data_weather['main']['pressure'],data_weather['main']['humidity'],data_weather['main']['temp_min'],data_weather['main']['temp_max'],
   data_weather['visibility'],data_weather['wind']['speed'],data_weather['wind']['deg'],data_weather['clouds']['all'],
-  data_weather['sys']['type'],data_weather['sys']['id'],data_weather['sys']['message'],data_weather['sys']['country'],
+  time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['dt'])),data_weather['sys']['type'],
+  data_weather['sys']['id'],data_weather['sys']['message'],data_weather['sys']['country'],
   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunrise'])),
-  time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunset'])),data_weather['id'],data_weather['name'],data_weather['cod'],
-  datetime.datetime.now(),time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['dt'])))
+  time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunset'])),data_weather['id'],data_weather['name'],data_weather['cod'])
 
 mycursor.execute(sql_weather, val2)
 

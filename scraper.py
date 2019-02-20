@@ -3,26 +3,37 @@ import mysql.connector
 import time
 
 # Setup the database connection
-mydb = mysql.connector.connect(
-    host="host-name",
-    user="user-name",
-    passwd="password",
-    database="database-name",
-    auth_plugin='mysql_native_password'
-
-)
+try:
+    mydb = mysql.connector.connect(
+        host="host-name",
+        user="user-name",
+        passwd="password",
+        database="database-name",
+        auth_plugin='mysql_native_password'
+    )
+except mysql.connector.Error as err:
+    print("Unable to connect to database: {}".format(err))
+    sys.exit(1)
 
 # Get the data from the API
 url_bikes = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey={API-KEY}"
 url_weather = 'https://api.openweathermap.org/data/2.5/weather?id=7778677&appid={API-KEY}'
 
+try:
+    response_bikes = requests.get(url_bikes)
+    data_bikes = response_bikes.json()
+    
+except requests.exceptions.RequestException as e:
+    print(e)
+    sys.exit(1)
 
-response_bikes = requests.get(url_bikes)
-data_bikes = response_bikes.json()
-
-response_weather = requests.get(url_weather)
-data_weather = response_weather.json()
-
+try:
+    response_weather = requests.get(url_weather)
+    data_weather = response_weather.json()
+    
+except requests.exceptions.RequestException as e:
+    print(e)
+    sys.exit(1)
 
 # Create the insert statement for the new data
 sql_bikes = "INSERT INTO dublin_bikes_availability (number, bike_stands, available_bike_stands, " \
@@ -35,7 +46,8 @@ sql_weather = "INSERT INTO weather (coord_lon, coord_lat, weather_id, weather_ma
             "sys_sunrise, sys_sunset, city_id, city_name, cod) "\
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-mycursor = mydb.cursor()
+try:
+    mycursor = mydb.cursor()
 
 # Iterate through the data response object and perform inserts
 for elem in range(0, len(data_bikes)):
@@ -60,3 +72,7 @@ mydb.commit()
 
 # Close the connection
 mydb.close()
+
+except mysql.connector.Error as err:
+    print("Unable to connect to database: {}".format(err))
+    sys.exit(1)

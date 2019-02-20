@@ -1,7 +1,6 @@
 import requests
 import mysql.connector
 import time
-import datetime
 
 # Setup the database connection
 mydb = mysql.connector.connect(
@@ -58,4 +57,7 @@ val2=(data_weather['coord']['lon'],data_weather['coord']['lat'],data_weather['we
 mycursor.execute(sql_weather, val2)
 
 mydb.commit()
+
+# Close the connection
+mydb.close()
 

@@ -6,10 +6,10 @@ import sys
 # Setup the database connection
 try:
     mydb = mysql.connector.connect(
-        host="host-name",
-        user="user-name",
-        passwd="password",
-        database="database-name",
+        host="",
+        user="",
+        passwd="",
+        database="",
         auth_plugin='mysql_native_password'
     )
 except mysql.connector.Error as err:
@@ -17,13 +17,13 @@ except mysql.connector.Error as err:
     sys.exit(1)
 
 # Get the data from the API
-url_bikes = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey={API-KEY}"
-url_weather = 'https://api.openweathermap.org/data/2.5/weather?id=7778677&appid={API-KEY}'
+url_bikes = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey={}"
+url_weather = 'https://api.openweathermap.org/data/2.5/weather?id=7778677&appid={}'
 
 try:
     response_bikes = requests.get(url_bikes)
     data_bikes = response_bikes.json()
-    
+
 except requests.exceptions.RequestException as e:
     print(e)
     sys.exit(1)
@@ -31,7 +31,7 @@ except requests.exceptions.RequestException as e:
 try:
     response_weather = requests.get(url_weather)
     data_weather = response_weather.json()
-    
+
 except requests.exceptions.RequestException as e:
     print(e)
     sys.exit(1)
@@ -51,28 +51,28 @@ try:
     mycursor = mydb.cursor()
 
 # Iterate through the data response object and perform inserts
-for elem in range(0, len(data_bikes)):
-    val = (data[elem]["number"], data[elem]["bike_stands"], data[elem]["available_bike_stands"],
-           data[elem]["available_bikes"], data[elem]["status"],
-           time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data[elem]["last_update"]/1000)))
+    for elem in range(0, len(data_bikes)):
+        val = (data_bikes[elem]["number"], data_bikes[elem]["bike_stands"], data_bikes[elem]["available_bike_stands"],
+               data_bikes[elem]["available_bikes"], data_bikes[elem]["status"],
+               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_bikes[elem]["last_update"]/1000)))
 
-    mycursor.execute(sql_bikes, val)
+        mycursor.execute(sql_bikes, val)
 
-val2=(data_weather['coord']['lon'],data_weather['coord']['lat'],data_weather['weather'][0]['id'],data_weather['weather'][0]['main'],
-      data_weather['weather'][0]['description'],data_weather['weather'][0]['icon'],data_weather['base'],data_weather['main']['temp'],
-      data_weather['main']['pressure'],data_weather['main']['humidity'],data_weather['main']['temp_min'],data_weather['main']['temp_max'],
-      data_weather['visibility'],data_weather['wind']['speed'],data_weather['wind']['deg'],data_weather['clouds']['all'],
-      time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['dt'])),data_weather['sys']['type'],
-      data_weather['sys']['id'],data_weather['sys']['message'],data_weather['sys']['country'],
-      time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunrise'])),
-      time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunset'])),data_weather['id'],data_weather['name'],data_weather['cod'])
+    val2=(data_weather['coord']['lon'],data_weather['coord']['lat'],data_weather['weather'][0]['id'],data_weather['weather'][0]['main'],
+          data_weather['weather'][0]['description'],data_weather['weather'][0]['icon'],data_weather['base'],data_weather['main']['temp'],
+          data_weather['main']['pressure'],data_weather['main']['humidity'],data_weather['main']['temp_min'],data_weather['main']['temp_max'],
+          data_weather['visibility'],data_weather['wind']['speed'],data_weather['wind']['deg'],data_weather['clouds']['all'],
+          time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['dt'])),data_weather['sys']['type'],
+          data_weather['sys']['id'],data_weather['sys']['message'],data_weather['sys']['country'],
+          time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunrise'])),
+          time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(data_weather['sys']['sunset'])),data_weather['id'],data_weather['name'],data_weather['cod'])
 
-mycursor.execute(sql_weather, val2)
+    mycursor.execute(sql_weather, val2)
 
-mydb.commit()
+    mydb.commit()
 
-# Close the connection
-mydb.close()
+    # Close the connection
+    mydb.close()
 
 except mysql.connector.Error as err:
     print("Unable to connect to database: {}".format(err))

@@ -1,6 +1,7 @@
 import requests
 import mysql.connector
 import time
+import sys
 
 # Setup the database connection
 try:

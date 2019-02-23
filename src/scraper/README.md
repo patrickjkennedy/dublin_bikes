@@ -1,6 +1,6 @@
 # JCDecaux & OpenWeatherMap API Scraper
 
-This repository contains scripts that query both the JCDecaux Dublin Bikes and OpenWeatherMap APIs and writes the response to a MySQL database. 
+This directory contains scripts that query both the JCDecaux Dublin Bikes and OpenWeatherMap APIs and writes the response to a MySQL database. 
 Please note that the database needs to be created in advance of running the script, with the column names specified in the
 script. For further discussion around the database and the reasoning of it's column types etc., please see this
 Google Document:

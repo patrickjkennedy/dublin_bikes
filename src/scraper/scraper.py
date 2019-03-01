@@ -2,14 +2,15 @@ import requests
 import mysql.connector
 import time
 import sys
+import config
 
 # Setup the database connection
 try:
     mydb = mysql.connector.connect(
-        host="",
-        user="",
-        passwd="",
-        database="",
+        host=config.rds_host,
+        user=config.rds_user,
+        passwd=config.rds_password,
+        database=config.rds_production_database,
         auth_plugin='mysql_native_password'
     )
 except mysql.connector.Error as err:
@@ -17,8 +18,8 @@ except mysql.connector.Error as err:
     sys.exit(1)
 
 # Get the data from the API
-url_bikes = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey={}"
-url_weather = 'https://api.openweathermap.org/data/2.5/weather?id=7778677&appid={}'
+url_bikes = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey=" + config.jcdecaux_api_key
+url_weather = "https://api.openweathermap.org/data/2.5/weather?id=7778677&appid=" + config.openweather_api_key
 
 try:
     response_bikes = requests.get(url_bikes)

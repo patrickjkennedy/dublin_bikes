@@ -1,15 +1,15 @@
 import requests
 import mysql.connector
-import time
 import sys
+import config
 
 # Setup the database connection
 try:
     mydb = mysql.connector.connect(
-        host="",
-        user="",
-        passwd="",
-        database="",
+        host=config.rds_host,
+        user=config.rds_user,
+        passwd=config.rds_password,
+        database=config.rds_production_database,
         auth_plugin='mysql_native_password'
     )
 except mysql.connector.Error as err:
@@ -17,15 +17,13 @@ except mysql.connector.Error as err:
     sys.exit(1)
 
 # Get the data from the API
-url = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey={}"
+url = "https://api.jcdecaux.com/vls/v1/stations?contract=Dublin&apiKey=" + config.jcdecaux_api_key
 try:
     response = requests.get(url)
     data = response.json()
 except requests.exceptions.RequestException as e:
     print(e)
     sys.exit(1)
-
-
 
 # Create the insert statement for the new data
 sql = "INSERT INTO dublin_bikes_static (number, contract_name, name, address, latitude, longitude, banking, " \

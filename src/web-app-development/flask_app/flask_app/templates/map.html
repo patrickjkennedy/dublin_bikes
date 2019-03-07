@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <!-- the following line has to be at the start of ALL google charts. -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {
+        "packages":["map"],
+        "mapsApiKey": config.google_developer_API
+    });
+        
+        var obj = {{data|tojson }};
+        
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart(){
+          var dataA = [['Lat', 'Long', 'Name']];
+          for (var i = 0; i<obj.length ; i++){
+            var a = obj[i]['position']['lat'];
+            var b = obj[i]['position']['lng'];
+            var c = obj[i]['name'];
+            dataA.push([a,b,c]);
+          }
+          var data = google.visualization.arrayToDataTable(dataA);
+
+        var map = new google.visualization.Map(document.getElementById('map_div'));
+        map.draw(data, {
+          showTooltip: true,
+          showInfoWindow: true,
+            useMapTypeControl: true,
+            mapType: 'terrain',
+            icons: {
+                default: {
+                normal: "bike.png"  
+                }
+            }
+        })
+      };
+      </script>
+    <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {53.350140, -6.266155},
+            mapTypeId: "terrain"
+          zoom: 8
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNUQxN5i0ZZB8MKmGjmY9ZYWC_MRm57qU&callback=initMap"
+    async defer></script>
+    </head>
+
+  <body>
+    <h1>Dublin Bikes App Version 2!</h1>
+    <div id="map_div" style="height: 80%"></div>
+  </body>
+</html>

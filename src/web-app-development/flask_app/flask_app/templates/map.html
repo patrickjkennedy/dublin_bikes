@@ -1,5 +1,58 @@
 <html>
   <head>
+	  <link href="https://fonts.googleapis.com/css?family=Londrina+Sketch" rel="stylesheet">
+	  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+        <style>
+            body{
+                background-color: linen;
+		font-family: 'Josefin Sans', sans-serif;
+            }
+            h1 {
+                justify-content: center;
+                text-align: center;
+                border-bottom-style: groove;
+                border-bottom-color: black;
+                margin-top: 50px;
+                margin-left: 15%;
+                margin-right: 15%;
+                font-family: 'Londrina Sketch', cursive;
+                font-size: 80px;
+            }
+            #map{
+                margin-left: 10%;
+            }
+	    #selection{
+                margin-left: 25%;
+		padding-top: 10px;
+            }
+	    #collectTime{
+		position: relative;
+		display:inline-block;
+		padding-left: 200px;
+	    }
+	    #dropTime{
+                position: relative;
+                display:inline-block;
+		padding-left: 200px;
+
+            }
+	    #selectFrom{
+                position: relative;
+		display: inline-block;
+            }
+	    #selectTo{
+		position:relative;
+		display:inline-block;
+            }
+	    #container1{
+		    padding-bottom: 10px;
+	    }
+            select{
+                font-family: 'Josefin Sans', sans-serif;
+                font-size: 20px;
+                padding: 3px;
+            }
+        </style>
       <script>
         var obj = {{data|tojson }};
           
@@ -8,15 +61,15 @@
         map = new google.maps.Map(document.getElementById('map'), {
           center: new google.maps.LatLng(53.350140, -6.266155),
             mapTypeId: "terrain",
-          zoom: 14,
+          zoom: 13,
         });
           
-          for (var i = 0; i<parsedObj.length ; i++){              
-            var a = parsedObj[i]['position']['lat'];
-            var b = parsedObj[i]['position']['lng'];
-            var c = parsedObj[i]['name'];
-            var d = parsedObj[i]['available_bike_stands'];
-            var e = parsedObj[i]['available_bikes'];
+          for (var i = 0; i<obj.length ; i++){              
+            var a = obj[i]['position']['lat'];
+            var b = obj[i]['position']['lng'];
+            var c = obj[i]['name'];
+            var d = obj[i]['available_bike_stands'];
+            var e = obj[i]['available_bikes'];
             var infowindow = new google.maps.InfoWindow({
 		      content: "Loading..."
 	       });;
@@ -24,9 +77,8 @@
             var marker = new google.maps.Marker({
             position: {lat: a, lng: b},
             map: map,
-            icon: "bike.png",
+            icon: "/static/bike.png",
             info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString(),
-            draggable: true,
             animation: google.maps.Animation.DROP
             });
             google.maps.event.addListener(marker, "click", function () {
@@ -44,7 +96,60 @@
     </head>
 
   <body>
-    <h1>Dublin Bikes App Version 2!</h1>
-    <div id="map" style="height: 80%"></div>
+    <h1>Dublin Bikes - Journey Planner</h1>
+    <div id="map" style="height: 50%; width:80%"></div>
+
+    <div id="selection">
+	    <form>
+		    <div id="container1">
+	    <div id="selectFrom">Collect From:</div> <div id="collectTime">Collection Time:</div>
+		    </div>
+		    <div id="container2">
+	    <div id="selectTo">Drop-off At:</div> <div id="dropTime">Drop-off Time:</div>
+		    </div>
+	<input type='submit'> </form>
+    </div>
+
+    <script>
+          function fillStation(thePlace) {
+		  var text = "<br><select name='Station'>";
+              for (var i=0; i<obj.length; i++){
+                  var name = obj[i]['name'];
+              text += "<option value=" + name + ">" + name + "</option>";
+              }
+		  text += "</select>";
+              document.getElementById(thePlace).innerHTML += text;
+          }
+	  function fillTime(thePlace) {
+		  var text = "<br><select name='Time'>";
+              for (var i=0; i<=23; i++){
+                  for (var j=0; j<56; j+=5){
+                      if (i==0 && j==0){
+                          var time = "0:00";
+                          }else if (i == 0){
+                              if (j==5){
+                                  var time = "0" + ":" + "05";
+                              }
+                              else{
+                                  var time = "0" + ":" + j;
+                              }
+                          }else if (j==0){
+                                var time = i + ":" + "00";
+                          }else if (j==5){
+                              var time = i + ":" + "05";
+                          }else{
+                              var time = i + ":" + j;
+                          }
+                        text += "<option value=" + time + ">" + time + "</option>"; 
+              }
+              }
+              text += "</select>";
+              document.getElementById(thePlace).innerHTML += text;
+          }
+          fillTime("collectTime");
+	  fillTime("dropTime");
+          fillStation("selectFrom");
+	  fillStation("selectTo");
+      </script>
   </body>
 </html>

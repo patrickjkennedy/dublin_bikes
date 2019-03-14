@@ -72,6 +72,7 @@
             var c = obj[i]['name'];
             var d = obj[i]['available_bike_stands'];
             var e = obj[i]['available_bikes'];
+	    var f = obj[i]['number'];
             var infowindow = new google.maps.InfoWindow({
 		      content: "Loading..."
 	       });;
@@ -81,17 +82,23 @@
             map: map,
             icon: "/static/bike.png",
             info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString(),
+	    stationNo: f,
             animation: google.maps.Animation.DROP
             });
             google.maps.event.addListener(marker, "click", function () {
 			infowindow.setContent(this.info);
 			infowindow.open(map, this);
+		    	fillSelect(this.stationNo)
                 		});
 
             
             
       }
       }
+
+	function fillSelect(number){
+            document.getElementById('StationselectFrom').value = number;
+        }
     </script>
     <script src={{map_key}}
     async defer></script>
@@ -101,29 +108,36 @@
     <h1>Dublin Bikes - Journey Planner</h1>
     <div id="map" style="height: 50%; width:80%"></div>
 
+
     <div id="selection">
+
 	    <form>
 		    <div id="container1">
-	    <div id="selectFrom">Collect From:</div> <div id="collectTime">Collection Time:</div>
+			<div id="selectFrom">Collect From:</div>
+		    	<div id="collectTime">Collection Time:</div>
 		    </div>
 		    <div id="container2">
-	    <div id="selectTo">Drop-off At:</div> <div id="dropTime">Drop-off Time:</div>
+			    <div id="selectTo">Drop-off At:</div>
+			    <div id="dropTime">Drop-off Time:</div>
 		    </div>
 	<input type='submit'> </form>
     </div>
 
     <script>
           function fillStation(thePlace) {
-		  var text = "<br><select name='Station'>";
+            var id = "Station" + thePlace;
+		  var text = "<br><select id=" + id + ">";
               for (var i=0; i<obj.length; i++){
                   var name = obj[i]['name'];
-              text += "<option value=" + name + ">" + name + "</option>";
+		  var num = obj[i]['number'];
+              text += "<option value=" + num + ">" + name + "</option>";
               }
 		  text += "</select>";
               document.getElementById(thePlace).innerHTML += text;
           }
 	  function fillTime(thePlace) {
-		  var text = "<br><select name='Time'>";
+          var id = "Select" + thePlace;
+		  var text = "<br><select id=" + id + ">";
               for (var i=0; i<=23; i++){
                   for (var j=0; j<56; j+=5){
                       if (i==0 && j==0){
@@ -152,6 +166,51 @@
 	  fillTime("dropTime");
           fillStation("selectFrom");
 	  fillStation("selectTo");
+        
+        function autoTimeDrop(value1, value2){
+            document.getElementById('SelectcollectTime').value = value1;
+            document.getElementById('SelectdropTime').value = value2;
+
+        }
+          var today = new Date();
+          var hrs = today.getHours();
+          var mins = today.getMinutes();
+          
+          function correctMin(hrs, mins){
+              var strHrs = hrs.toString();
+              var strMins = mins.toString();
+              var newhrs1 = hrs.toString();
+              var hrsplus1 = hrs+1;
+              var newhrs2 = hrsplus1.toString();
+              var newmins = "";
+              switch (strMins[0]){
+                  case "0":
+                      newmins = "10"; break;
+                  case "1":
+                      newmins = "20"; break;
+                  case "2":
+                      newmins = "30"; break;
+                  case "3":
+                      newmins = "40"; break;
+                  case "4":
+                      newmins = "50"; break;
+                  case "5":
+                      newmins = "00";
+                      var temp1 = hrs + 1;
+                      var temp2 = hrs + 2;
+                      newhrs1 = temp1.toString();
+                      newhrs2 = temp2.toString();break;
+              }
+              var value1 = newhrs1 + ":" + newmins;
+              
+              var value2 = newhrs2 + ":" + newmins;
+              console.log(value1, value2);
+              autoTimeDrop(value1, value2);
+              
+              
+          }
+          //strings are immutable in JavaScript God Dammit//
+          correctMin(hrs, mins)
       </script>
   </body>
 </html>

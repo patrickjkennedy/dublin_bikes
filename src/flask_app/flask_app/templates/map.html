@@ -260,8 +260,11 @@
                 if (add30Mins==0){
                     add30Mins="00";
                 }
+                if (add30Hrs==24){
+                    add30Hrs="0";
+                }
             }
-            
+                
             //create string value to pass into function (collect in 30 mins time)
             var value2 = add30Hrs + ":" + add30Mins;
             

@@ -17,8 +17,9 @@ def connect_to_database():
         )
         return connection
     # Make this exception actually work
-    except:
-        print("Unable to connect to database: {}".format(err))
+    except pymysql.Error as error:
+        print("While connecting with database :", error)
+        raise
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -28,9 +29,13 @@ def get_db():
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+    try:
+        db = getattr(g, '_database', None)
+        if db is not None:
+            db.close()
+    except pymysql.Error as error:
+        print("While closing with database :", error)
+        raise
 
 @app.route('/')
 @app.route('/index')

@@ -11,7 +11,7 @@ def connect_to_database():
             host=config.rds_host,
             user=config.rds_user,
             password=config.rds_password,
-            db=config.rds_development_database,
+            db=config.rds_production_database,
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor
         )

@@ -1,0 +1,12 @@
+<html>
+    <head>
+      {% if title %}
+      <title>Dublin Bikes</title>
+      {% else %}
+      <title>Welcome to Dublin Bikes</title>
+      {% endif %}
+    </head>
+    <body>
+        {% block content %}{% endblock %}
+    </body>
+</html>

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, g, jsonify
-from flask_app import app
+from flask_app import application
 import os
 import config
 import simplejson as json
@@ -27,7 +27,7 @@ def get_db():
         db = g._database = connect_to_database()
     return db
 
-@app.teardown_appcontext
+@application.teardown_appcontext
 def close_connection(exception):
     try:
         db = getattr(g, '_database', None)
@@ -37,8 +37,8 @@ def close_connection(exception):
         print("While closing with database :", error)
         raise
 
-@app.route('/')
-@app.route('/index')
+@application.route('/')
+@application.route('/index')
 def index():
     result_stations = get_stations()
     result_current_availability = get_current_availability()
@@ -46,7 +46,7 @@ def index():
     data_current_availability = json.loads(result_current_availability)
     return render_template('index.html', title='Home', data_stations=data_stations, data_current_availability=data_current_availability, map_key=config.map_url)
 
-@app.route("/api/stations")
+@application.route("/api/stations")
 def get_stations():
     connection = get_db()
     with connection.cursor() as cursor:
@@ -54,7 +54,7 @@ def get_stations():
         data = cursor.fetchall()
     return json.dumps(data, default=str)
 
-@app.route("/api/current_availability")
+@application.route("/api/current_availability")
 def get_current_availability():
     connection = get_db()
     with connection.cursor() as cursor:

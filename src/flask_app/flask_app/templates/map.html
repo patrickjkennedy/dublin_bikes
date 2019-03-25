@@ -24,6 +24,12 @@
                 font-family: 'Londrina Sketch', cursive;
                 font-size: 80px;
             }
+
+            #map_options{
+              margin-left: 10%;
+              margin-right: 10%
+            }
+
             #map{
                 margin-left: 10%;
             }
@@ -75,6 +81,10 @@
                   zoom: 13,
               });
 
+              // Create the traffic layer and bike layer variables
+              trafficLayer = new google.maps.TrafficLayer();
+              bikeLayer = new google.maps.BicyclingLayer();
+
               //populate the map with marker locations.  locations / availability taken for 2 JSON objects
               for (var i = 0; i<stations.length ; i++){
                   var a = stations[i]['latitude'];
@@ -95,14 +105,13 @@
                       position: {lat: a, lng: b},
                       map: map,
                       //icon located in static Flask folder
-                      icon: "/static/bike.png",
+                      icon: getIcon(getPercentageAvailability(d,e)),
                       //text to be included in the pop-up window
                       info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString()
                       + "<br><br> Credit Card Availability: " + booleanFormatter(g),
                       //following line added for use in calling JS function
                       //it populates the select box to correcpond with the current icon location
                       stationNo: f,
-
                       //makes the icons "fall" onto the map on load.
                       animation: google.maps.Animation.DROP
                   });
@@ -133,6 +142,39 @@
             else return null;
           }
 
+          // Determine which icon to use based on percentage availability
+          function getIcon(percentage_availability){
+            if (percentage_availability < 10){
+              return "/static/red_bike.png"
+            } else if (percentage_availability > 60){
+              return "/static/green_bike.png"
+            } else return "/static/orange_bike.png"
+
+          }
+
+          // Determine percentage availability
+          function getPercentageAvailability(available_bike_stands, available_bikes){
+            return (available_bikes/available_bike_stands)*100
+          }
+
+          // Display the traffic data
+          function displayTraffic(checkbox){
+            if (checkbox.checked){
+              trafficLayer.setMap(map);
+            } else {
+              trafficLayer.setMap(null);
+            }
+          }
+
+          // Display the bicycle layer
+          function displayBikeInfo(checkbox){
+            if (checkbox.checked){
+              bikeLayer.setMap(map);
+            } else {
+              bikeLayer.setMap(null);
+            }
+          }
+
     </script>
 
       <!--Separate script tags for the async google maps API call-->
@@ -141,6 +183,25 @@
 
     <body>
     <h1>Dublin Bikes - Journey Planner</h1>
+
+    <div id="map_options">
+      <form>
+          <fieldset>
+              <legend>Map Options</legend>
+          <div>
+            <input type="checkbox" onchange="displayTraffic(this)"/>
+            <label for="traffic">Traffic</label>
+          </div>
+
+          <div>
+            <input type="checkbox" onclick="displayBikeInfo(this)"/>
+            <label for="bike_info">Bike Info</label>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+
     <div id="map" style="height: 50%; width:80%"></div>
 
     <div id="selection">

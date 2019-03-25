@@ -5,7 +5,7 @@
 	  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
       <!--- link for favicon-->
       <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-	  
+
       <style>
           /* Document level styling for the entire page*/
             body{
@@ -62,7 +62,7 @@
           //accept json objects from Flask for station info and stand occupancy info//
           var stations = {{data_stations|tojson }};
           var availability = {{data_current_availability|tojson}};
-          
+
           //following code is for generating an embedded Google map
           var map;
           function initMap() {
@@ -74,7 +74,7 @@
                   //sets level of zoom over the centre coordinates
                   zoom: 13,
               });
-              
+
               //populate the map with marker locations.  locations / availability taken for 2 JSON objects
               for (var i = 0; i<stations.length ; i++){
                   var a = stations[i]['latitude'];
@@ -83,12 +83,13 @@
                   var d = availability[i]['available_bike_stands'];
                   var e = availability[i]['available_bikes'];
                   var f = stations[i]['number'];
-                  
+                  var g = stations[i]['banking']
+
                   //Initially set the pop-up window to say "Loading..."
                   var infowindow = new google.maps.InfoWindow({
                       content: "Loading..."
                   });;
-                  
+
                   var marker = new google.maps.Marker({
                       //position for each marker
                       position: {lat: a, lng: b},
@@ -96,14 +97,16 @@
                       //icon located in static Flask folder
                       icon: "/static/bike.png",
                       //text to be included in the pop-up window
-                      info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString(),
+                      info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString()
+                      + "<br><br> Credit Card Availability: " + booleanFormatter(g),
                       //following line added for use in calling JS function
-                      //it populates the select box to correcpond with the current icon location 
+                      //it populates the select box to correcpond with the current icon location
                       stationNo: f,
+
                       //makes the icons "fall" onto the map on load.
                       animation: google.maps.Animation.DROP
                   });
-                  
+
                   //code for actually creating the "info-window" on click of the icon/marker location
                   google.maps.event.addListener(marker, "click", function () {
                       //use the variable "info" we populated earlier
@@ -118,12 +121,24 @@
           function fillSelect(number){
               document.getElementById('StationselectFrom').value = number;
           }
+
+          // Formatter for Boolean Database values
+          function booleanFormatter(number){
+            if (number == 0){
+              return "No";
+            }
+            else if (number == 1){
+              return "Yes";
+            }
+            else return null;
+          }
+
     </script>
-    
+
       <!--Separate script tags for the async google maps API call-->
     <script src={{map_key}} async defer></script>
     </head>
-    
+
     <body>
     <h1>Dublin Bikes - Journey Planner</h1>
     <div id="map" style="height: 50%; width:80%"></div>
@@ -143,7 +158,7 @@
 	<input type='submit'></form>
     </div>
     <!--End of form data section-->
-        
+
         <script>
             //The following JavaScript has to be below the main body of code, as it is calling Divs/elements that need to exist already
             function fillStation(thePlace){
@@ -161,13 +176,13 @@
                 //append text body to the Div
                 document.getElementById(thePlace).innerHTML += text;
             }
-            
+
             //function to fill select boxes with options for time - in 5 minute increments
             function fillTime(thePlace) {
                 //create unique ID for both collect time and drop off time
                 var id = "Select" + thePlace;
                 var text = "<br><select id=" + id + ">";
-                
+
                 //loop through for hours / 5min increments
                 //JS time is "1" and not "01" for single digit hrs/mins - therefore extra handling required for specific values
                 for (var i=0; i<=23; i++){
@@ -188,45 +203,45 @@
                         }else{
                             var time = i + ":" + j;
                         }
-                        text += "<option value=" + time + ">" + time + "</option>"; 
+                        text += "<option value=" + time + ">" + time + "</option>";
                     }
                 }
                 text += "</select>";
                 document.getElementById(thePlace).innerHTML += text;
             }
-            
+
             //invoke functions to fill the 2 select boxes for stations and 2 select boxes for times.
             fillTime("collectTime");
             fillTime("dropTime");
             fillStation("selectFrom");
             fillStation("selectTo");
-            
+
             //function to auto-select boxes to current time (nearest 10) and drop off time (+30)
             function autoTimeDrop(value1, value2){
             document.getElementById('SelectcollectTime').value = value1;
             document.getElementById('SelectdropTime').value = value2;
 
         }
-            
+
             //create a new date Object.  Create hour and minute variables from this.
             var today = new Date();
             var hrs = today.getHours();
             var mins = today.getMinutes();
-            
+
             //function to "correct" the hours / minutes to the nearest 10 minute interval (in the future)
             //takes hours and minutes as arguments
             function correctMin(hrs, mins){
-            
+
             //convert hours and mins to string format.  autoTimeDrop() takes strings ass arguments
             var strHrs = hrs.toString();
             var strMins = mins.toString();
-            
+
             //hours to be used to the "dropoff" time select dropdown
             var add30Hrs = hrs;
-            
+
             // new value that time will be set to and "selected" for dropdown (string format)
             var newmins = "";
-            
+
             //the following lines of code assess the hrs/mins values, and change the dropdown to the next 10min interval.
             if (strMins.length == 1){
                 newmins = "10";
@@ -247,13 +262,13 @@
 		      add30Hrs = add30Hrs+1; break;
                     }
             }
-            
+
             //variable that will store the "drop-off" MINS value (add half a hour -- limit for free bike journey)
             var add30Mins = parseInt(newmins) + 30;
-            
+
             //create string value to pass into function (current time)
             var value1 = hrs + ":" + newmins;
-            
+
             //if 30mins is added, but total mins goes above 50 mins, we need to increase hour by 1 and take 60 away from mins
             if (add30Mins > 50){
                 add30Hrs = add30Hrs + 1;
@@ -265,10 +280,10 @@
                     add30Hrs="0";
                 }
             }
-                
+
             //create string value to pass into function (collect in 30 mins time)
             var value2 = add30Hrs + ":" + add30Mins;
-            
+
             //invoke the function to auto-select the 2 time dropdowns (collect time / drop-off time)
             autoTimeDrop(value1, value2);
             }

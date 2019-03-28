@@ -30,6 +30,12 @@
               margin-right: 10%
             }
 
+            #checkbox_inline{
+              display: block;
+              float: left;
+              margin-right: 10px;
+            }
+
             #map{
                 margin-left: 10%;
             }
@@ -136,6 +142,8 @@
                       infowindow.open(map, this);
                       //this is the extra function to auto select the current station in the select box secction below the map
                       fillSelect(this.stationNo)
+                      // Pass station number to the chart
+                      updateChart(this.stationNo)
                   });
               }
 
@@ -190,6 +198,15 @@
             }
           }
 
+          // Display occupancy analytics in the info window
+          function displayAnalytics(checkbox){
+            if (checkbox.checked){
+              bikeLayer.setMap(map);
+            } else {
+              bikeLayer.setMap(null);
+            }
+          }
+
     </script>
 
       <!--Separate script tags for the async google maps API call-->
@@ -203,26 +220,31 @@
       <form>
           <fieldset>
               <legend>Map Options</legend>
-          <div>
+          <div id="checkbox_inline">
             <input type="checkbox" onchange="displayTraffic(this)"/>
             <label for="traffic">Traffic</label>
           </div>
-
-          <div>
+          <div id="checkbox_inline">
             <input type="checkbox" onclick="displayBikeInfo(this)"/>
             <label for="bike_info">Bike Info</label>
+          </div>
+          <div id="checkbox_inline">
+            <input type="checkbox" onclick="displayAnalytics(this)"/>
+            <label for="analytics">Analytics</label>
           </div>
         </fieldset>
       </form>
     </div>
 
-
-    <div id="map" style="height: 50%; width:80%"></div>
+    <div id="map" style="height: 70%; width:80%"></div>
 
     <div id="legend"><h3>Bicycle Availability</h3>
       <div><img src="/static/green_bike_small.png"> High</div>
       <div><img src="/static/orange_bike_small.png"> Medium</div>
       <div><img src="/static/red_bike_small.png"> Low</div>
+    </div>
+
+    <div id="chart_container">
     </div>
 
     <div id="selection">
@@ -240,7 +262,8 @@
 	<input type='submit'></form>
     </div>
     <!--End of form data section-->
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>
             //The following JavaScript has to be below the main body of code, as it is calling Divs/elements that need to exist already
             function fillStation(thePlace){
@@ -371,6 +394,73 @@
             }
             //invoke function to change time to a multiple of 10
             correctMin(hrs, mins)
+
+            function updateChart(stationId){
+              // Delete an existing chart if it is present, else add to page
+              // Change to remove
+              if ($("canvas").length){
+                analyticsChart.destroy();
+              }
+
+              // Add canvas
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"100\" height=\"100\"></canvas>");
+
+              // API call to get JSON
+              var base = "/api/station_occupancy_weekly/";
+              var url = base + stationId;
+
+              var jsonData = $.ajax({
+                url: url,
+                dataType: 'json',
+              }).done(function (data) {
+
+              // Get data from json
+              var mean_available_bikes = JSON.parse(data["mean_available_bikes"]);
+              var mean_available_stands = JSON.parse(data["mean_available_stands"]);
+              var bikesData = [mean_available_bikes["available_bikes"]["Mon"],
+                                                mean_available_bikes["available_bikes"]["Tue"],
+                                                mean_available_bikes["available_bikes"]["Wed"],
+                                                mean_available_bikes["available_bikes"]["Thurs"],
+                                                mean_available_bikes["available_bikes"]["Fri"],
+                                                mean_available_bikes["available_bikes"]["Sat"],
+                                                mean_available_bikes["available_bikes"]["Sun"]];
+
+              console.log(mean_available_stands);
+              var standsData = [mean_available_stands["available_bike_stands"]["Mon"],
+                                                mean_available_stands["available_bike_stands"]["Tue"],
+                                                mean_available_stands["available_bike_stands"]["Wed"],
+                                                mean_available_stands["available_bike_stands"]["Thurs"],
+                                                mean_available_stands["available_bike_stands"]["Fri"],
+                                                mean_available_stands["available_bike_stands"]["Sat"],
+                                                mean_available_stands["available_bike_stands"]["Sun"]];
+
+              // Create the chart.js data structure
+              var chartData = {
+                labels: ["Mon", 'Tue', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Mean Bicycle Availability',
+                    data: bikesData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                }]
+              };
+
+              // Get the context of the canvas element we want to select
+              var ctx = document.getElementById('analytics_chart').getContext('2d');
+
+              // Instantiate a new chart
+              analyticsChart = new Chart(ctx, { type:'bar', data: chartData});
+            });
+          }
+
+          // Remove data cleanly (https://www.chartjs.org/docs/latest/developers/updates.html)
+          function removeData(chart) {
+            chart.data.labels.pop();
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.pop();
+            });
+            chart.update();
+        }
+
       </script>
   </body>
 </html>

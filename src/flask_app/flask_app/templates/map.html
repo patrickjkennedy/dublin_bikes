@@ -142,7 +142,7 @@
                       infowindow.open(map, this);
                       //this is the extra function to auto select the current station in the select box secction below the map
                       fillSelect(this.stationNo)
-                      // Pass station number to the chart
+                      // Pass station number and name to the chart
                       updateChart(this.stationNo)
                   });
               }
@@ -396,14 +396,13 @@
             correctMin(hrs, mins)
 
             function updateChart(stationId){
-              // Delete an existing chart if it is present, else add to page
-              // Change to remove
+              // Delete an existing chart if it is present
               if ($("canvas").length){
-                analyticsChart.destroy();
+                $("canvas").remove();
               }
 
               // Add canvas
-              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"100\" height=\"100\"></canvas>");
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"400px\" height=\"400px\"></canvas>");
 
               // API call to get JSON
               var base = "/api/station_occupancy_weekly/";
@@ -424,8 +423,6 @@
                                                 mean_available_bikes["available_bikes"]["Fri"],
                                                 mean_available_bikes["available_bikes"]["Sat"],
                                                 mean_available_bikes["available_bikes"]["Sun"]];
-
-              console.log(mean_available_stands);
               var standsData = [mean_available_stands["available_bike_stands"]["Mon"],
                                                 mean_available_stands["available_bike_stands"]["Tue"],
                                                 mean_available_stands["available_bike_stands"]["Wed"],
@@ -441,25 +438,21 @@
                     label: 'Mean Bicycle Availability',
                     data: bikesData,
                     backgroundColor: 'rgba(255, 99, 132, 0.2)'
-                }]
+                },
+                  {
+                    label: 'Mean Stand Availability',
+                    data: standsData,
+                    backgroundColor: 'rgba(0, 99, 255, 0.2)'
+                  }]
               };
 
               // Get the context of the canvas element we want to select
               var ctx = document.getElementById('analytics_chart').getContext('2d');
 
               // Instantiate a new chart
-              analyticsChart = new Chart(ctx, { type:'bar', data: chartData});
+              analyticsChart = new Chart(ctx, { type:'bar', data: chartData, options: { responsive: false } });
             });
           }
-
-          // Remove data cleanly (https://www.chartjs.org/docs/latest/developers/updates.html)
-          function removeData(chart) {
-            chart.data.labels.pop();
-            chart.data.datasets.forEach((dataset) => {
-                dataset.data.pop();
-            });
-            chart.update();
-        }
 
       </script>
   </body>

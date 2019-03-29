@@ -131,7 +131,7 @@
     <div id="selection">
         <!--The following code is one single form, that will send results back to the Flask app for use in M-L model-->
         <!--The divs are empty but populated by JS functions-->
-	    <form>
+	    <form method="post">
 		    <div id="container1">
 			<div id="selectFrom">Collect From:</div>
 		    	<div id="collectTime">Collection Time:</div>
@@ -150,7 +150,7 @@
                 //create unique IDs for the select elements
                 var id = "Station" + thePlace;
                 //Make first option "default" to " - - - - "
-                var text = "<br><select id=" + id + "> <option value=notSelected> - - - - </option>";
+                var text = "<br><select id=" + id + " name=" + id + "><option value=notSelected> - - - - </option>";
                 //loop through and add an option for each Station
                 for (var i=0; i<stations.length; i++){
                     var name = stations[i]['name'];
@@ -166,7 +166,7 @@
             function fillTime(thePlace) {
                 //create unique ID for both collect time and drop off time
                 var id = "Select" + thePlace;
-                var text = "<br><select id=" + id + ">";
+                var text = "<br><select id=" + id + " name =" + id +">";
                 
                 //loop through for hours / 5min increments
                 //JS time is "1" and not "01" for single digit hrs/mins - therefore extra handling required for specific values
@@ -275,5 +275,26 @@
             //invoke function to change time to a multiple of 10
             correctMin(hrs, mins)
       </script>
+      <script type=text/javascript src="{{
+  url_for('static', filename='jquery.js') }}"></script>
+	<script>
+		$(function() {
+    $('form').submit(function(e) {
+        $.ajax({
+            url: '/user_input',
+            data: $('form').serialize(),
+            type: 'POST',
+            success: function(response) {
+                console.log(response);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+        e.preventDefault();
+    });
+});
+        
+	</script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, g, jsonify
+from flask import Flask, render_template, url_for, g, jsonify, request
 from flask_app import application
 import os
 import config
@@ -44,6 +44,7 @@ def index():
     result_current_availability = get_current_availability()
     data_stations = json.loads(result_stations)
     data_current_availability = json.loads(result_current_availability)
+    
     return render_template('index.html', title='Home', data_stations=data_stations, data_current_availability=data_current_availability, map_key=config.map_url)
 
 @application.route("/api/stations")
@@ -61,3 +62,12 @@ def get_current_availability():
         cursor.execute("SELECT * FROM scraper.dublin_bikes_availability order by id desc limit 113;")
         data = cursor.fetchall()
     return json.dumps(data, default=str)
+
+@application.route("/user_input", methods=["GET", "POST"])
+def user_input():
+    fromStation =  request.form.get('StationselectFrom')
+    toStation = request.form.get('StationselectTo')
+    fromTime = request.form.get('SelectcollectTime')
+    toTime = request.form.get('SelectdropTime')
+    result =  json.dumps({'From Station': fromStation, 'To Station': toStation, 'From Time': fromTime, 'To Time':toTime})
+    return(result)

@@ -72,8 +72,8 @@ def get_station_occupancy_weekly(station_id):
     df.set_index('last_update', inplace=True)
     df['weekday'] = df.index.weekday
     df['weekday'] = df.index.weekday
-    mean_available_stands = df[['available_bike_stands','weekday']].groupby('weekday').mean()
-    mean_available_bikes = df[['available_bikes', 'weekday']].groupby('weekday').mean()
+    mean_available_stands = df[['available_bike_stands','weekday']].groupby('weekday').mean().round(1)
+    mean_available_bikes = df[['available_bikes', 'weekday']].groupby('weekday').mean().round(1)
     mean_available_stands.index = days
     mean_available_bikes.index = days
     return jsonify(mean_available_stands=mean_available_stands.to_json(), mean_available_bikes=mean_available_bikes.to_json())

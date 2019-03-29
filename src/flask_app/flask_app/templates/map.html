@@ -10,7 +10,7 @@
           /* Document level styling for the entire page*/
             body{
                 background-color: linen;
-                  font-family: 'Josefin Sans', sans-serif;
+                font-family: 'Josefin Sans', sans-serif;
             }
             h1 {
                 justify-content: center;
@@ -26,19 +26,35 @@
             }
 
             #map_options{
-              margin-left: 10%;
-              margin-right: 10%
+                margin-left: 10%;
+                margin-right: 10%
             }
 
             #checkbox_inline{
-              display: block;
-              float: left;
-              margin-right: 10px;
+                display: block;
+                float: left;
+                margin-right: 10px;
+            }
+
+            #map_chart_container{
+                width: 100vw;
+                margin: auto;
             }
 
             #map{
                 margin-left: 10%;
+                float: left;
             }
+
+            #chart_container{
+                margin-left: 10%;
+                float: left;
+            }
+
+            #analytics_chart{
+                float: left;
+            }
+
             #selection{
                 margin-left: 25%;
                 padding-top: 10px;
@@ -129,8 +145,10 @@
                       info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString()
                       + "<br><br> Credit Card Availability: " + booleanFormatter(g),
                       //following line added for use in calling JS function
-                      //it populates the select box to correcpond with the current icon location
+                      //it populates the select box to correpond with the current icon location
                       stationNo: f,
+                      // add station name as property
+                      stationName: c,
                       //makes the icons "fall" onto the map on load.
                       animation: google.maps.Animation.DROP
                   });
@@ -141,9 +159,9 @@
                       infowindow.setContent(this.info);
                       infowindow.open(map, this);
                       //this is the extra function to auto select the current station in the select box secction below the map
-                      fillSelect(this.stationNo)
+                      fillSelect(this.stationNo);
                       // Pass station number and name to the chart
-                      updateChart(this.stationNo)
+                      updateChart(this.stationNo, this.stationName);
                   });
               }
 
@@ -198,15 +216,6 @@
             }
           }
 
-          // Display occupancy analytics in the info window
-          function displayAnalytics(checkbox){
-            if (checkbox.checked){
-              bikeLayer.setMap(map);
-            } else {
-              bikeLayer.setMap(null);
-            }
-          }
-
     </script>
 
       <!--Separate script tags for the async google maps API call-->
@@ -228,23 +237,13 @@
             <input type="checkbox" onclick="displayBikeInfo(this)"/>
             <label for="bike_info">Bike Info</label>
           </div>
-          <div id="checkbox_inline">
-            <input type="checkbox" onclick="displayAnalytics(this)"/>
-            <label for="analytics">Analytics</label>
-          </div>
         </fieldset>
       </form>
     </div>
 
-    <div id="map" style="height: 70%; width:80%"></div>
-
-    <div id="legend"><h3>Bicycle Availability</h3>
-      <div><img src="/static/green_bike_small.png"> High</div>
-      <div><img src="/static/orange_bike_small.png"> Medium</div>
-      <div><img src="/static/red_bike_small.png"> Low</div>
-    </div>
-
-    <div id="chart_container">
+    <div id="map_chart_container">
+      <div id="map" style="height: 70%; width:80%"></div>
+      <div id="chart_container"></div>
     </div>
 
     <div id="selection">
@@ -259,7 +258,13 @@
 			    <div id="selectTo">Drop-off At:</div>
 			    <div id="dropTime">Drop-off Time:</div>
 		    </div>
-	<input type='submit'></form>
+	    <input type='submit'></form>
+    </div>
+
+    <div id="legend"><h3>Bicycle Availability</h3>
+      <div><img src="/static/green_bike_small.png"> High</div>
+      <div><img src="/static/orange_bike_small.png"> Medium</div>
+      <div><img src="/static/red_bike_small.png"> Low</div>
     </div>
     <!--End of form data section-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
@@ -395,7 +400,7 @@
             //invoke function to change time to a multiple of 10
             correctMin(hrs, mins)
 
-            function updateChart(stationId){
+            function updateChart(stationId, stationName){
               // Delete an existing chart if it is present
               if ($("canvas").length){
                 $("canvas").remove();
@@ -450,7 +455,21 @@
               var ctx = document.getElementById('analytics_chart').getContext('2d');
 
               // Instantiate a new chart
-              analyticsChart = new Chart(ctx, { type:'bar', data: chartData, options: { responsive: false } });
+              analyticsChart = new Chart(ctx, {
+                type:'bar',
+                data: chartData,
+                options: {
+                  responsive: false,
+                  scales: {
+                    xAxes: [{ stacked: true }],
+                    yAxes: [{ stacked: true }]
+                  },
+                  title: {
+                    display: true,
+                    text: stationName
+                  }
+                }
+              });
             });
           }
 

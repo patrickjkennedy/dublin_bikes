@@ -4,6 +4,7 @@ import os
 import config
 import simplejson as json
 import pymysql.cursors
+import pandas as pd
 
 def connect_to_database():
     try:
@@ -61,3 +62,18 @@ def get_current_availability():
         cursor.execute("SELECT * FROM scraper.dublin_bikes_availability order by id desc limit 113;")
         data = cursor.fetchall()
     return json.dumps(data, default=str)
+
+@app.route("/api/station_occupancy_weekly/<int:station_id>")
+def get_station_occupancy_weekly(station_id):
+    connection = get_db()
+    days = ["Mon", "Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"]
+    df = pd.read_sql_query("SELECT * FROM scraper.dublin_bikes_availability WHERE number = %(number)s LIMIT 0, 18446744073709551615",
+    connection, params={"number":station_id})
+    df.set_index('last_update', inplace=True)
+    df['weekday'] = df.index.weekday
+    df['weekday'] = df.index.weekday
+    mean_available_stands = df[['available_bike_stands','weekday']].groupby('weekday').mean().round(1)
+    mean_available_bikes = df[['available_bikes', 'weekday']].groupby('weekday').mean().round(1)
+    mean_available_stands.index = days
+    mean_available_bikes.index = days
+    return jsonify(mean_available_stands=mean_available_stands.to_json(), mean_available_bikes=mean_available_bikes.to_json())

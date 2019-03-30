@@ -5,12 +5,12 @@
 	  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
       <!--- link for favicon-->
       <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-	  
+
       <style>
           /* Document level styling for the entire page*/
             body{
                 background-color: linen;
-                  font-family: 'Josefin Sans', sans-serif;
+                font-family: 'Josefin Sans', sans-serif;
             }
             h1 {
                 justify-content: center;
@@ -24,9 +24,37 @@
                 font-family: 'Londrina Sketch', cursive;
                 font-size: 80px;
             }
+
+            #map_options{
+                margin-left: 10%;
+                margin-right: 10%
+            }
+
+            #checkbox_inline{
+                display: block;
+                float: left;
+                margin-right: 10px;
+            }
+
+            #map_chart_container{
+                width: 100vw;
+                margin: auto;
+            }
+
             #map{
                 margin-left: 10%;
+                float: left;
             }
+
+            #chart_container{
+                margin-left: 10%;
+                float: left;
+            }
+
+            #analytics_chart{
+                float: left;
+            }
+
             #selection{
                 margin-left: 25%;
                 padding-top: 10px;
@@ -52,6 +80,19 @@
             #container1{
                 padding-bottom: 10px;
             }
+            #legend {
+              font-family: Arial, sans-serif;
+              background: #fff;
+              padding: 10px;
+              margin: 10px;
+              border: 3px solid #000;
+            }
+            #legend h3 {
+              margin-top: 0;
+            }
+            #legend img {
+              vertical-align: middle;
+            }
             select{
                 font-family: 'Josefin Sans', sans-serif;
                 font-size: 15px;
@@ -62,7 +103,7 @@
           //accept json objects from Flask for station info and stand occupancy info//
           var stations = {{data_stations|tojson }};
           var availability = {{data_current_availability|tojson}};
-          
+
           //following code is for generating an embedded Google map
           var map;
           function initMap() {
@@ -74,7 +115,11 @@
                   //sets level of zoom over the centre coordinates
                   zoom: 13,
               });
-              
+
+              // Create the traffic layer and bike layer variables
+              trafficLayer = new google.maps.TrafficLayer();
+              bikeLayer = new google.maps.BicyclingLayer();
+
               //populate the map with marker locations.  locations / availability taken for 2 JSON objects
               for (var i = 0; i<stations.length ; i++){
                   var a = stations[i]['latitude'];
@@ -83,50 +128,123 @@
                   var d = availability[i]['available_bike_stands'];
                   var e = availability[i]['available_bikes'];
                   var f = stations[i]['number'];
-                  
+                  var g = stations[i]['banking']
+
                   //Initially set the pop-up window to say "Loading..."
                   var infowindow = new google.maps.InfoWindow({
                       content: "Loading..."
                   });;
-                  
+
                   var marker = new google.maps.Marker({
                       //position for each marker
                       position: {lat: a, lng: b},
                       map: map,
                       //icon located in static Flask folder
-                      icon: "/static/bike.png",
+                      icon: getIcon(getPercentageAvailability(d,e)),
                       //text to be included in the pop-up window
-                      info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString(),
+                      info: "Station: " + c + " <br><br>Available Bikes: " + e.toString() + "<br><br> Available Stands: " + d.toString()
+                      + "<br><br> Credit Card Availability: " + booleanFormatter(g),
                       //following line added for use in calling JS function
-                      //it populates the select box to correcpond with the current icon location 
+                      //it populates the select box to correpond with the current icon location
                       stationNo: f,
+                      // add station name as property
+                      stationName: c,
                       //makes the icons "fall" onto the map on load.
                       animation: google.maps.Animation.DROP
                   });
-                  
+
                   //code for actually creating the "info-window" on click of the icon/marker location
                   google.maps.event.addListener(marker, "click", function () {
                       //use the variable "info" we populated earlier
                       infowindow.setContent(this.info);
                       infowindow.open(map, this);
                       //this is the extra function to auto select the current station in the select box secction below the map
-                      fillSelect(this.stationNo)
+                      fillSelect(this.stationNo);
+                      // Pass station number and name to the chart
+                      updateChart(this.stationNo, this.stationName);
                   });
               }
+
+              var legend = document.getElementById('legend');
+              map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
           }
           //simple function that changes the "select" dropdown to the number supplied as the parameter for the function
           function fillSelect(number){
               document.getElementById('StationselectFrom').value = number;
           }
+
+          // Formatter for Boolean Database values
+          function booleanFormatter(number){
+            if (number == 0){
+              return "No";
+            }
+            else if (number == 1){
+              return "Yes";
+            }
+            else return null;
+          }
+
+          // Determine which icon to use based on percentage availability
+          function getIcon(percentage_availability){
+            if (percentage_availability < 10){
+              return "/static/red_bike.png"
+            } else if (percentage_availability > 60){
+              return "/static/green_bike.png"
+            } else return "/static/orange_bike.png"
+          }
+
+          // Determine percentage availability
+          function getPercentageAvailability(available_bike_stands, available_bikes){
+            return (available_bikes/available_bike_stands)*100
+          }
+
+          // Display the traffic data
+          function displayTraffic(checkbox){
+            if (checkbox.checked){
+              trafficLayer.setMap(map);
+            } else {
+              trafficLayer.setMap(null);
+            }
+          }
+
+          // Display the bicycle layer
+          function displayBikeInfo(checkbox){
+            if (checkbox.checked){
+              bikeLayer.setMap(map);
+            } else {
+              bikeLayer.setMap(null);
+            }
+          }
+
     </script>
-    
+
       <!--Separate script tags for the async google maps API call-->
     <script src={{map_key}} async defer></script>
     </head>
-    
+
     <body>
     <h1>Dublin Bikes - Journey Planner</h1>
-    <div id="map" style="height: 50%; width:80%"></div>
+
+    <div id="map_options">
+      <form>
+          <fieldset>
+              <legend>Map Options</legend>
+          <div id="checkbox_inline">
+            <input type="checkbox" onchange="displayTraffic(this)"/>
+            <label for="traffic">Traffic</label>
+          </div>
+          <div id="checkbox_inline">
+            <input type="checkbox" onclick="displayBikeInfo(this)"/>
+            <label for="bike_info">Bike Info</label>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+
+    <div id="map_chart_container">
+      <div id="map" style="height: 70%; width:80%"></div>
+      <div id="chart_container"></div>
+    </div>
 
     <div id="selection">
         <!--The following code is one single form, that will send results back to the Flask app for use in M-L model-->
@@ -140,10 +258,17 @@
 			    <div id="selectTo">Drop-off At:</div>
 			    <div id="dropTime">Drop-off Time:</div>
 		    </div>
-	<input type='submit'></form>
+	    <input type='submit'></form>
+    </div>
+
+    <div id="legend"><h3>Bicycle Availability</h3>
+      <div><img src="/static/green_bike_small.png"> High</div>
+      <div><img src="/static/orange_bike_small.png"> Medium</div>
+      <div><img src="/static/red_bike_small.png"> Low</div>
     </div>
     <!--End of form data section-->
-        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>
             //The following JavaScript has to be below the main body of code, as it is calling Divs/elements that need to exist already
             function fillStation(thePlace){
@@ -161,13 +286,13 @@
                 //append text body to the Div
                 document.getElementById(thePlace).innerHTML += text;
             }
-            
+
             //function to fill select boxes with options for time - in 5 minute increments
             function fillTime(thePlace) {
                 //create unique ID for both collect time and drop off time
                 var id = "Select" + thePlace;
                 var text = "<br><select id=" + id + ">";
-                
+
                 //loop through for hours / 5min increments
                 //JS time is "1" and not "01" for single digit hrs/mins - therefore extra handling required for specific values
                 for (var i=0; i<=23; i++){
@@ -188,45 +313,45 @@
                         }else{
                             var time = i + ":" + j;
                         }
-                        text += "<option value=" + time + ">" + time + "</option>"; 
+                        text += "<option value=" + time + ">" + time + "</option>";
                     }
                 }
                 text += "</select>";
                 document.getElementById(thePlace).innerHTML += text;
             }
-            
+
             //invoke functions to fill the 2 select boxes for stations and 2 select boxes for times.
             fillTime("collectTime");
             fillTime("dropTime");
             fillStation("selectFrom");
             fillStation("selectTo");
-            
+
             //function to auto-select boxes to current time (nearest 10) and drop off time (+30)
             function autoTimeDrop(value1, value2){
             document.getElementById('SelectcollectTime').value = value1;
             document.getElementById('SelectdropTime').value = value2;
 
         }
-            
+
             //create a new date Object.  Create hour and minute variables from this.
             var today = new Date();
             var hrs = today.getHours();
             var mins = today.getMinutes();
-            
+
             //function to "correct" the hours / minutes to the nearest 10 minute interval (in the future)
             //takes hours and minutes as arguments
             function correctMin(hrs, mins){
-            
+
             //convert hours and mins to string format.  autoTimeDrop() takes strings ass arguments
             var strHrs = hrs.toString();
             var strMins = mins.toString();
-            
+
             //hours to be used to the "dropoff" time select dropdown
             var add30Hrs = hrs;
-            
+
             // new value that time will be set to and "selected" for dropdown (string format)
             var newmins = "";
-            
+
             //the following lines of code assess the hrs/mins values, and change the dropdown to the next 10min interval.
             if (strMins.length == 1){
                 newmins = "10";
@@ -247,13 +372,13 @@
 		      add30Hrs = add30Hrs+1; break;
                     }
             }
-            
+
             //variable that will store the "drop-off" MINS value (add half a hour -- limit for free bike journey)
             var add30Mins = parseInt(newmins) + 30;
-            
+
             //create string value to pass into function (current time)
             var value1 = hrs + ":" + newmins;
-            
+
             //if 30mins is added, but total mins goes above 50 mins, we need to increase hour by 1 and take 60 away from mins
             if (add30Mins > 50){
                 add30Hrs = add30Hrs + 1;
@@ -265,15 +390,89 @@
                     add30Hrs="0";
                 }
             }
-                
+
             //create string value to pass into function (collect in 30 mins time)
             var value2 = add30Hrs + ":" + add30Mins;
-            
+
             //invoke the function to auto-select the 2 time dropdowns (collect time / drop-off time)
             autoTimeDrop(value1, value2);
             }
             //invoke function to change time to a multiple of 10
             correctMin(hrs, mins)
+
+            function updateChart(stationId, stationName){
+              // Delete an existing chart if it is present
+              if ($("canvas").length){
+                $("canvas").remove();
+              }
+
+              // Add canvas
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"400px\" height=\"400px\"></canvas>");
+
+              // API call to get JSON
+              var base = "/api/station_occupancy_weekly/";
+              var url = base + stationId;
+
+              var jsonData = $.ajax({
+                url: url,
+                dataType: 'json',
+              }).done(function (data) {
+
+              // Get data from json
+              var mean_available_bikes = JSON.parse(data["mean_available_bikes"]);
+              var mean_available_stands = JSON.parse(data["mean_available_stands"]);
+              var bikesData = [mean_available_bikes["available_bikes"]["Mon"],
+                                                mean_available_bikes["available_bikes"]["Tue"],
+                                                mean_available_bikes["available_bikes"]["Wed"],
+                                                mean_available_bikes["available_bikes"]["Thurs"],
+                                                mean_available_bikes["available_bikes"]["Fri"],
+                                                mean_available_bikes["available_bikes"]["Sat"],
+                                                mean_available_bikes["available_bikes"]["Sun"]];
+              var standsData = [mean_available_stands["available_bike_stands"]["Mon"],
+                                                mean_available_stands["available_bike_stands"]["Tue"],
+                                                mean_available_stands["available_bike_stands"]["Wed"],
+                                                mean_available_stands["available_bike_stands"]["Thurs"],
+                                                mean_available_stands["available_bike_stands"]["Fri"],
+                                                mean_available_stands["available_bike_stands"]["Sat"],
+                                                mean_available_stands["available_bike_stands"]["Sun"]];
+
+              // Create the chart.js data structure
+              var chartData = {
+                labels: ["Mon", 'Tue', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Mean Bicycle Availability',
+                    data: bikesData,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                },
+                  {
+                    label: 'Mean Stand Availability',
+                    data: standsData,
+                    backgroundColor: 'rgba(0, 99, 255, 0.2)'
+                  }]
+              };
+
+              // Get the context of the canvas element we want to select
+              var ctx = document.getElementById('analytics_chart').getContext('2d');
+
+              // Instantiate a new chart
+              analyticsChart = new Chart(ctx, {
+                type:'bar',
+                data: chartData,
+                options: {
+                  responsive: false,
+                  scales: {
+                    xAxes: [{ stacked: true }],
+                    yAxes: [{ stacked: true }]
+                  },
+                  title: {
+                    display: true,
+                    text: stationName
+                  }
+                }
+              });
+            });
+          }
+
       </script>
   </body>
 </html>

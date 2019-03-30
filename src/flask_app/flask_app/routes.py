@@ -1,8 +1,6 @@
 from flask import Flask, render_template, url_for, g, jsonify
 from flask_app import app
-import os
 import config
-import simplejson as json
 import pymysql.cursors
 import pandas as pd
 

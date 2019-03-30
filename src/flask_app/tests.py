@@ -16,5 +16,9 @@ class DublinBikesUnitTests(unittest.TestCase):
         response = self.app.get('/api/current_availability').get_json()
         self.assertEqual(len(response),113)
 
+    def test_station_occupancy_weekly(self):
+        response = self.app.get('/api/station_occupancy_weekly/42').get_json()
+        self.assertEqual(len(response),2)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

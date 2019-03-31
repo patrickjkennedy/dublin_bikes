@@ -4,6 +4,7 @@ import os
 import config
 import simplejson as json
 import pymysql.cursors
+from conversion import changingTime
 
 def connect_to_database():
     try:
@@ -63,11 +64,18 @@ def get_current_availability():
         data = cursor.fetchall()
     return json.dumps(data, default=str)
 
+@application.route("/api/forecast")
+def get_forecast():
+    connection = get_db()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM scraper.forecase")
+    return json.dumps(data, default=str)
+
 @application.route("/user_input", methods=["GET", "POST"])
 def user_input():
     fromStation =  request.form.get('StationselectFrom')
     toStation = request.form.get('StationselectTo')
-    fromTime = request.form.get('SelectcollectTime')
-    toTime = request.form.get('SelectdropTime')
+    fromTime = changingTime(request.form.get('SelectcollectTime'))
+    toTime = changingTime(request.form.get('SelectdropTime'))
     result =  json.dumps({'From Station': fromStation, 'To Station': toStation, 'From Time': fromTime, 'To Time':toTime})
     return(result)

@@ -1,8 +1,6 @@
 from flask import Flask, render_template, url_for, g, jsonify
 from flask_app import app
-import os
 import config
-import simplejson as json
 import pymysql.cursors
 import pandas as pd
 
@@ -41,10 +39,8 @@ def close_connection(exception):
 @app.route('/')
 @app.route('/index')
 def index():
-    result_stations = get_stations()
-    result_current_availability = get_current_availability()
-    data_stations = json.loads(result_stations)
-    data_current_availability = json.loads(result_current_availability)
+    data_stations = get_stations().get_json()
+    data_current_availability = get_current_availability().get_json()
     return render_template('index.html', title='Home', data_stations=data_stations, data_current_availability=data_current_availability, map_key=config.map_url)
 
 @app.route("/api/stations")
@@ -53,7 +49,7 @@ def get_stations():
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM dublin_bikes_static")
         data = cursor.fetchall()
-    return json.dumps(data, default=str)
+    return jsonify(data)
 
 @app.route("/api/current_availability")
 def get_current_availability():
@@ -61,7 +57,7 @@ def get_current_availability():
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM scraper.dublin_bikes_availability order by id desc limit 113;")
         data = cursor.fetchall()
-    return json.dumps(data, default=str)
+    return jsonify(data)
 
 @app.route("/api/station_occupancy_weekly/<int:station_id>")
 def get_station_occupancy_weekly(station_id):

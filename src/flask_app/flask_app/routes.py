@@ -1,7 +1,8 @@
-from flask import Flask, render_template, url_for, g, jsonify
-from flask_app import app
+from flask import Flask, render_template, url_for, g, jsonify, request
+from flask_app import application
 import config
 import pymysql.cursors
+from conversion import changingTime
 import pandas as pd
 
 def connect_to_database():
@@ -26,7 +27,7 @@ def get_db():
         db = g._database = connect_to_database()
     return db
 
-@app.teardown_appcontext
+@application.teardown_appcontext
 def close_connection(exception):
     try:
         db = getattr(g, '_database', None)
@@ -36,14 +37,14 @@ def close_connection(exception):
         print("While closing with database :", error)
         raise
 
-@app.route('/')
-@app.route('/index')
+@application.route('/')
+@application.route('/index')
 def index():
     data_stations = get_stations().get_json()
     data_current_availability = get_current_availability().get_json()
     return render_template('index.html', title='Home', data_stations=data_stations, data_current_availability=data_current_availability, map_key=config.map_url)
 
-@app.route("/api/stations")
+@application.route("/api/stations")
 def get_stations():
     connection = get_db()
     with connection.cursor() as cursor:
@@ -51,13 +52,29 @@ def get_stations():
         data = cursor.fetchall()
     return jsonify(data)
 
-@app.route("/api/current_availability")
+@application.route("/api/current_availability")
 def get_current_availability():
     connection = get_db()
     with connection.cursor() as cursor:
         cursor.execute("SELECT * FROM scraper.dublin_bikes_availability order by id desc limit 113;")
         data = cursor.fetchall()
     return jsonify(data)
+
+@application.route("/api/forecast")
+def get_forecast():
+    connection = get_db()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM scraper.forecase")
+    return json.dumps(data, default=str)
+
+@application.route("/user_input", methods=["GET", "POST"])
+def user_input():
+    fromStation =  request.form.get('StationselectFrom')
+    toStation = request.form.get('StationselectTo')
+    fromTime = changingTime(request.form.get('SelectcollectTime'))
+    toTime = changingTime(request.form.get('SelectdropTime'))
+    result =  json.dumps({'From Station': fromStation, 'To Station': toStation, 'From Time': fromTime, 'To Time':toTime})
+    return(result)
 
 @app.route("/api/station_occupancy_weekly/<int:station_id>")
 def get_station_occupancy_weekly(station_id):

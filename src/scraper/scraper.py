@@ -37,6 +37,10 @@ except requests.exceptions.RequestException as e:
     print(e)
     sys.exit(1)
 
+try:
+    response_forecast = requests.get(url_forecast)
+    data_forecase = response_forecast.json()
+
 # Create the insert statement for the new data
 sql_bikes = "INSERT INTO dublin_bikes_availability (number, bike_stands, available_bike_stands, " \
             "available_bikes, status, last_update) " \

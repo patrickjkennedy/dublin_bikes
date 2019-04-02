@@ -4,6 +4,7 @@ import config
 import pymysql.cursors
 from conversion import changingTime
 import pandas as pd
+import simplejson as json
 
 def connect_to_database():
     try:
@@ -64,8 +65,9 @@ def get_current_availability():
 def get_forecast():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM scraper.forecase")
-    return json.dumps(data, default=str)
+        cursor.execute("SELECT * FROM scraper.forecast")
+        data = cursor.fetchall()
+    return jsonify(data)
 
 @application.route("/user_input", methods=["GET", "POST"])
 def user_input():
@@ -76,7 +78,7 @@ def user_input():
     result =  json.dumps({'From Station': fromStation, 'To Station': toStation, 'From Time': fromTime, 'To Time':toTime})
     return(result)
 
-@app.route("/api/station_occupancy_weekly/<int:station_id>")
+@application.route("/api/station_occupancy_weekly/<int:station_id>")
 def get_station_occupancy_weekly(station_id):
     connection = get_db()
     days = ["Mon", "Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"]

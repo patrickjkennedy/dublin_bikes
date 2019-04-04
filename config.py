@@ -1,0 +1,8 @@
+rds_host = "scraper.cfdwlqq4pthn.eu-west-1.rds.amazonaws.com"
+rds_user = "SW8idoa9"
+rds_password = "8djSgi93KCC"
+rds_development_database = "test_scraper"
+rds_production_database = "scraper"
+jcdecaux_api_key = "896ab28678332e5aaa57a2d07a78a04bbc0b9aef"
+openweather_api_key = "e6fe8274aa40ec3cfad673280273873a"
+map_url = "https://maps.googleapis.com/maps/api/js?key=AIzaSyCNUQxN5i0ZZB8MKmGjmY9ZYWC_MRm57qU&callback=initMap"

@@ -1,5 +1,7 @@
 # Dublin Bikes
 
+[![Build Status](https://travis-ci.com/patrickjkennedy/dublin_bikes.svg?token=AMDCQxDUHNS5cqZyzh6o&branch=develop)](https://travis-ci.com/patrickjkennedy/dublin_bikes)
+
 ## Introduction
 Welcome to the repository for Dublin Bikes - a software engineering group project developed by
 [Kieran Curtin](https://github.com/curtinkieran), [Moriah Fiebiger](https://github.com/mofiebiger)

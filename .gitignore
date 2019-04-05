@@ -1,5 +1,4 @@
 .idea/
-config.py
 __pycache__/
 .DS_Store
 flask_app/__pycache__/

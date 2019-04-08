@@ -1,10 +1,15 @@
 language: python
 python:
-  - "3.6"
+- '3.6'
 cache: pip
 install:
-  - pip install -r requirements.txt
+- pip install -r requirements.txt
 script:
-  - python tests.py
+- python tests.py
 notifications:
   slack: southwark-workspace:8Lp814RemmZzCkCTdjkZs7aT
+env:
+  global:
+    secure: MUklmT5+rKIYU5/YsS4DibmDwpReH8IcelcxRLYiexxguVTs8wVFhjRsjmJRl14NlFA0uMepkDuY4UpM1Pb2NNJOHjYFR4CagQkWtBR+HMpxAuZa4yDvicj3o4minjZ5UDqrb+yR+sK1G/I1do5FLga5INlDqCB+j60DlNxeP3kYlvFHodQPvA36QrzMhApyH4QkSITH3sM+NZwRcwSapOvUHrFwezjGGrSrMm8NWJqGCgfW/49R3R1vsfbbXRKXfgcUkTKpNiD84Br+tVyLwBoTHUP9yLbGLewdCe6QtYz18xv3fe+a4SEXwA+c3JUDB/i9BSQ5zpM2Gs7sjqpBOkLUE0EG1liFPRwKYflBrnXL1qLyoOmGc5iFlawrjjlI14F1X/r47EGwRLPmUFDSkqIqJ9OAB8+UoIe9Zo4ddmuGZOsbw4xUj8XlOY12zvN0IK8Tgt4+o7+MUqkE2RND19itNFbZKSFI64KVXPkStubrKtFNuj2qN5oAd4sWQPF6EY/pKJEuiOOvz/Pk+c5J8qP/1owCBPUijbtvu45YfSWd0WTlaMZ6mTxl72EYA7Qg8+0Ub1BC5pEKGGVRdn/RfZrBLQWiddueQvbzbpdyZzXUKdMJ+RrlVD0G3JP0Wu+svXMeBIZb6ng6db9UBVLBHb2m4Zyo31rpBp41j2EK2IE=
+before_install:
+- echo $config_password | gpg --passphrase-fd 0 config.py.gpg

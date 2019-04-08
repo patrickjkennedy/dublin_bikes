@@ -3,3 +3,4 @@ __pycache__/
 .DS_Store
 flask_app/__pycache__/
 flask_app/.DS_Store/
+config.py

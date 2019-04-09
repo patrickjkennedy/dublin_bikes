@@ -5,6 +5,10 @@ import pymysql.cursors
 from conversion import changingTime
 import pandas as pd
 import simplejson as json
+import datetime
+import pickle
+from os.path import join, dirname, realpath
+import json as js
 
 def connect_to_database():
     try:
@@ -53,6 +57,14 @@ def get_stations():
         data = cursor.fetchall()
     return jsonify(data)
 
+@application.route("/api/current_weather")
+def get_weather():
+    connection = get_db()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM scraper.weather order by id desc limit 1")
+        data = cursor.fetchall()
+    return jsonify(data)
+
 @application.route("/api/current_availability")
 def get_current_availability():
     connection = get_db()
@@ -71,12 +83,50 @@ def get_forecast():
 
 @application.route("/user_input", methods=["GET", "POST"])
 def user_input():
+
+    #get form data user input
     fromStation =  request.form.get('StationselectFrom')
     toStation = request.form.get('StationselectTo')
     fromTime = changingTime(request.form.get('SelectcollectTime'))
     toTime = changingTime(request.form.get('SelectdropTime'))
-    result =  json.dumps({'From Station': fromStation, 'To Station': toStation, 'From Time': fromTime, 'To Time':toTime})
-    return(result)
+
+    #change times to datetime strings
+    fromTime = datetime.datetime.strptime(fromTime, '%Y-%m-%d %H:%M:%S')
+    toTime = datetime.datetime.strptime(toTime, '%Y-%m-%d %H:%M:%S')
+
+    #change weekday to string
+    weekday = fromTime.strftime('%A')
+
+    #change times to hours
+    toTime = toTime.strftime('%H')
+    fromTime = fromTime.strftime('%H')
+
+    #save names for files
+    pickle1 = weekday+'_'+ fromStation +'.pkl'
+    pickle2 = weekday+'_'+ toStation +'.pkl'
+
+    #get absolute paths for pickle files
+    path1 = join(dirname(realpath(__file__)), 'static/'+pickle1)
+    path2 = join(dirname(realpath(__file__)), 'static/'+pickle2)
+
+    #load both pickle files
+    with open(path1, 'rb') as handleFrom:
+        model1 = pickle.load(handleFrom)
+    with open(path2, 'rb') as handleTo:
+        model2 = pickle.load(handleTo)
+    print(fromTime, toTime)
+    dataFrame(fromStation, toStation, fromTime, toTime)
+
+    return("OK")
+    
+def dataFrame(St1, St2, t1, t2):
+    forecast = get_forecast().get_json()
+    current_weather = get_weather().get_json()
+    bikeInfo = get_current_availability().get_json()
+    data = (forecast[0]['Main_temp'], forecast[0]['Weather_main'], forecast[0]['Wind_speed'], bikeInfo[int(St1)]['bike_stands'],
+            bikeInfo[int(St1)]['available_bike_stands'], bikeInfo[int(St1)]['available_bikes'], bikeInfo[int(St1)]['status'] )
+    print(data)
+
 
 @application.route("/api/station_occupancy_weekly/<int:station_id>")
 def get_station_occupancy_weekly(station_id):

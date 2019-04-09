@@ -114,19 +114,64 @@ def user_input():
         model1 = pickle.load(handleFrom)
     with open(path2, 'rb') as handleTo:
         model2 = pickle.load(handleTo)
-    print(fromTime, toTime)
-    dataFrame(fromStation, toStation, fromTime, toTime)
-
-    return("OK")
     
-def dataFrame(St1, St2, t1, t2):
-    forecast = get_forecast().get_json()
-    current_weather = get_weather().get_json()
-    bikeInfo = get_current_availability().get_json()
-    data = (forecast[0]['Main_temp'], forecast[0]['Weather_main'], forecast[0]['Wind_speed'], bikeInfo[int(St1)]['bike_stands'],
-            bikeInfo[int(St1)]['available_bike_stands'], bikeInfo[int(St1)]['available_bikes'], bikeInfo[int(St1)]['status'] )
-    print(data)
+    X = initDF()
+    Y = initDF()
+    input1 = generateInput(fromTime)
+    input2 = generateInput(toTime)
 
+    setValuesDF(X, input1)
+    setValuesDF(Y, input2)
+    
+    result1 = model1.predict(X)
+    result2 = model2.predict(Y)
+    
+    return jsonify(from_station=fromStation, from_station_bike_availability=int(round(result1[0])), from_time=fromTime,
+                    to_station=toStation, to_time=toTime, to_station_stand_availability=int(round(result2[0])))
+
+def initDF():
+    # Initialize the hours list
+    hours = [0] * 24
+    # Initalize the weather values
+    weather_main = [0] * 7
+    # Initialize weather continuous features
+    weather_data = [0] * 4
+    # Combine to form initial vector
+    data = [hours + weather_main + weather_data]
+    
+    df = pd.DataFrame(data, columns=['hour_0', 'hour_1', 'hour_2', 'hour_3', 'hour_4', 'hour_5', 'hour_6', 'hour_7', 'hour_8', 'hour_9',
+                                  'hour_10', 'hour_11', 'hour_12', 'hour_13', 'hour_14', 'hour_15', 'hour_16', 'hour_17',
+                                  'hour_18', 'hour_19', 'hour_20', 'hour_21', 'hour_22', 'hour_23', 'Weather_Clear', 
+                                  'Weather_Clouds', 'Weather_Drizzle', 'Weather_Fog', 'Weather_Mist', 'Weather_Rain', 
+                                  'Weather_Snow', 'main_temp', 'main_pressure', 'main_humidity', 'wind_speed'])
+    
+    return df
+
+def setValuesDF(df, dict):
+    df['hour_' + dict['hour']][0] = 1
+    df['Weather_' + dict['weather']][0] = 1
+    df['main_temp'][0] = dict['main_temp']
+    df['main_pressure'][0] = dict['main_pressure']
+    df['main_humidity'][0] = dict['main_humidity']
+    df['wind_speed'][0] = dict['wind_speed']
+    
+def generateInput(hour):
+    if hour == '00':
+        hour = '0' 
+    paramDict = {}
+    current_weather = get_weather().get_json()
+    mainTemp = current_weather[0]['main_temp']
+    mainWeather = current_weather[0]['weather_main']
+    mainPressure = current_weather[0]['main_pressure']
+    mainHumidity =  current_weather[0]['main_humidity']
+    windSpeed = current_weather[0]['wind_speed']
+    paramDict['hour'] = hour
+    paramDict['weather'] = mainWeather
+    paramDict['main_temp'] = mainTemp
+    paramDict['main_pressure'] = mainPressure
+    paramDict['main_humidity'] = mainHumidity
+    paramDict['wind_speed'] = windSpeed
+    return(paramDict)
 
 @application.route("/api/station_occupancy_weekly/<int:station_id>")
 def get_station_occupancy_weekly(station_id):

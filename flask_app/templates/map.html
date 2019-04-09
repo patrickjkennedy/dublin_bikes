@@ -260,6 +260,7 @@
 		    </div>
 	    <input type='submit'></form>
     </div>
+        <p id='test'></p>
 
     <div id="legend"><h3>Bicycle Availability</h3>
       <div><img src="/static/green_bike_small.png"> High</div>
@@ -476,6 +477,7 @@
 
       </script>
 	<script>
+        var stations = {{data_stations|tojson }};
 		$(function() {
     $('form').submit(function(e) {
         $.ajax({
@@ -483,7 +485,7 @@
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
-                console.log(response);
+                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[response['from_station']-2]['address'] + "</b> at " + response['from_time'] + ":00 there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[response['to_station']-2]['address'] + "</b> at " + response['to_time'] + ":00 there will be close to " + response['to_station_stand_availability'] + " stands available";
             },
             error: function(error) {
                 console.log(error);

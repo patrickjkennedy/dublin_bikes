@@ -276,7 +276,7 @@
                 //create unique IDs for the select elements
                 var id = "Station" + thePlace;
                 //Make first option "default" to " - - - - "
-                var text = "<br><select id=" + id + " name=" + id + "><option value=notSelected> - - - - </option>";
+                var text = "<br><select id=" + id + " name=" + id + ">";
                 //loop through and add an option for each Station
                 for (var i=0; i<stations.length; i++){
                     var name = stations[i]['name'];
@@ -485,7 +485,16 @@
             data: $('form').serialize(),
             type: 'POST',
             success: function(response) {
-                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[response['from_station']-2]['address'] + "</b> at " + response['from_time'] + ":00 there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[response['to_station']-2]['address'] + "</b> at " + response['to_time'] + ":00 there will be close to " + response['to_station_stand_availability'] + " stands available";
+                var stationNumber1 = response['from_station']-2;
+                var stationNumber2 = response['to_station']-2;
+                if (stationNumber1 > 17){
+                    stationNumber1 -= 1;
+                }
+                if (stationNumber2 > 17){
+                    stationNumber2 -= 1;
+                }
+                
+                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":00 there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":00 there will be close to " + response['to_station_stand_availability'] + " stands available";
             },
             error: function(error) {
                 console.log(error);

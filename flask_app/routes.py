@@ -156,8 +156,8 @@ def setValuesDF(df, dict):
     df['wind_speed'][0] = dict['wind_speed']
     
 def generateInput(hour):
-    if hour == '00':
-        hour = '0' 
+    if len(hour) == 2:
+        hour = hour[1] 
     paramDict = {}
     current_weather = get_weather().get_json()
     mainTemp = current_weather[0]['main_temp']

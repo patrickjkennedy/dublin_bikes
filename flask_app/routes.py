@@ -98,6 +98,8 @@ def user_input():
     weekday = fromTime.strftime('%A')
 
     #change times to hours
+    fromMins = fromTime.strftime('%M')
+    toMins = toTime.strftime('%M')
     toTime = toTime.strftime('%H')
     fromTime = fromTime.strftime('%H')
 
@@ -127,7 +129,8 @@ def user_input():
     result2 = model2.predict(Y)
     
     return jsonify(from_station=fromStation, from_station_bike_availability=int(round(result1[0])), from_time=fromTime,
-                    to_station=toStation, to_time=toTime, to_station_stand_availability=int(round(result2[0])))
+                    to_station=toStation, to_time=toTime, to_station_stand_availability=int(round(result2[0])), from_mins=fromMins,
+                    to_mins=toMins)
 
 def initDF():
     # Initialize the hours list

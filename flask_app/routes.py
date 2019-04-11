@@ -57,7 +57,7 @@ def get_stations():
 def get_current_availability():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM scraper.dublin_bikes_availability order by id desc limit 113;")
+        cursor.execute("SELECT * FROM (SELECT * FROM dublin_bikes_availability limit 113) AS T ORDER BY number asc;")
         data = cursor.fetchall()
     return jsonify(data)
 
@@ -65,7 +65,7 @@ def get_current_availability():
 def get_forecast():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM scraper.forecast")
+        cursor.execute("SELECT * FROM forecast")
         data = cursor.fetchall()
     return jsonify(data)
 
@@ -82,7 +82,7 @@ def user_input():
 def get_station_occupancy_weekly(station_id):
     connection = get_db()
     days = ["Mon", "Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"]
-    df = pd.read_sql_query("SELECT * FROM scraper.dublin_bikes_availability WHERE number = %(number)s LIMIT 0, 18446744073709551615",
+    df = pd.read_sql_query("SELECT * FROM dublin_bikes_availability WHERE number = %(number)s LIMIT 0, 18446744073709551615",
     connection, params={"number":station_id})
     df.set_index('last_update', inplace=True)
     df['weekday'] = df.index.weekday

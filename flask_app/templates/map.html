@@ -494,7 +494,7 @@
                     stationNumber2 -= 1;
                 }
                 
-                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":00 there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":00 there will be close to " + response['to_station_stand_availability'] + " stands available";
+                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + response['to_station_stand_availability'] + " stands available";
             },
             error: function(error) {
                 console.log(error);

@@ -85,10 +85,10 @@ def get_forecast():
 def user_input():
 
     #get form data user input
-    fromStation =  request.form.get('StationselectFrom')
-    toStation = request.form.get('StationselectTo')
-    fromTime = changingTime(request.form.get('SelectcollectTime'))
-    toTime = changingTime(request.form.get('SelectdropTime'))
+    fromStation =  request.args['StationselectFrom']
+    toStation = request.args['StationselectTo']
+    fromTime = changingTime(request.args['SelectcollectTime'])
+    toTime = changingTime(request.args['SelectdropTime'])
 
     #change times to datetime strings
     fromTime = datetime.datetime.strptime(fromTime, '%Y-%m-%d %H:%M:%S')

@@ -478,12 +478,13 @@
       </script>
 	<script>
         var stations = {{data_stations|tojson }};
+        var stations_availability = {{data_current_availability|tojson}};
 		$(function() {
     $('form').submit(function(e) {
         $.ajax({
             url: '/user_input',
             data: $('form').serialize(),
-            type: 'POST',
+            type: 'GET',
             success: function(response) {
                 var stationNumber1 = response['from_station']-2;
                 var stationNumber2 = response['to_station']-2;
@@ -494,7 +495,11 @@
                     stationNumber2 -= 1;
                 }
                 
-                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + response['to_station_stand_availability'] + " stands available";
+                var to_station_num_bikes = parseInt(response['to_station_stand_availability']);
+                var total_bikes = parseInt(stations_availability[stationNumber2]['bike_stands']);
+                var availability = total_bikes - to_station_num_bikes;
+                
+                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + availability + " stands available";
             },
             error: function(error) {
                 console.log(error);

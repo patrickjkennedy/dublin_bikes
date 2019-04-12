@@ -21,7 +21,7 @@ def connect_to_database():
             cursorclass=pymysql.cursors.DictCursor
         )
         return connection
-    # Make this exception actually work
+
     except pymysql.Error as error:
         print("While connecting with database :", error)
         raise
@@ -61,7 +61,7 @@ def get_stations():
 def get_weather():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM scraper.weather order by id desc limit 1")
+        cursor.execute("SELECT * FROM weather order by id desc limit 1")
         data = cursor.fetchall()
     return jsonify(data)
 
@@ -69,7 +69,7 @@ def get_weather():
 def get_current_availability():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM scraper.dublin_bikes_availability order by id desc limit 113;")
+        cursor.execute("SELECT * FROM (SELECT * FROM dublin_bikes_availability limit 113) AS T ORDER BY number asc;")
         data = cursor.fetchall()
     return jsonify(data)
 
@@ -77,7 +77,7 @@ def get_current_availability():
 def get_forecast():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM scraper.forecast")
+        cursor.execute("SELECT * FROM forecast")
         data = cursor.fetchall()
     return jsonify(data)
 
@@ -85,10 +85,10 @@ def get_forecast():
 def user_input():
 
     #get form data user input
-    fromStation =  request.form.get('StationselectFrom')
-    toStation = request.form.get('StationselectTo')
-    fromTime = changingTime(request.form.get('SelectcollectTime'))
-    toTime = changingTime(request.form.get('SelectdropTime'))
+    fromStation =  request.args['StationselectFrom']
+    toStation = request.args['StationselectTo']
+    fromTime = changingTime(request.args['SelectcollectTime'])
+    toTime = changingTime(request.args['SelectdropTime'])
 
     #change times to datetime strings
     fromTime = datetime.datetime.strptime(fromTime, '%Y-%m-%d %H:%M:%S')
@@ -98,6 +98,8 @@ def user_input():
     weekday = fromTime.strftime('%A')
 
     #change times to hours
+    fromMins = fromTime.strftime('%M')
+    toMins = toTime.strftime('%M')
     toTime = toTime.strftime('%H')
     fromTime = fromTime.strftime('%H')
 
@@ -114,25 +116,64 @@ def user_input():
         model1 = pickle.load(handleFrom)
     with open(path2, 'rb') as handleTo:
         model2 = pickle.load(handleTo)
-    print(fromTime, toTime)
-    dataFrame(fromStation, toStation, fromTime, toTime)
 
-    return("OK")
-    
-def dataFrame(St1, St2, t1, t2):
-    forecast = get_forecast().get_json()
+    X = initDF()
+    Y = initDF()
+    input1 = generateInput(fromTime)
+    input2 = generateInput(toTime)
+
+    setValuesDF(X, input1)
+    setValuesDF(Y, input2)
+
+    result1 = model1.predict(X)
+    result2 = model2.predict(Y)
+
+    return jsonify(from_station=fromStation, from_station_bike_availability=int(round(result1[0])), from_time=fromTime,
+                    to_station=toStation, to_time=toTime, to_station_stand_availability=int(round(result2[0])), from_mins=fromMins,
+                    to_mins=toMins)
+
+def initDF():
+    # Initialize the hours list
+    hours = [0] * 24
+    # Initialize weather continuous features
+    weather_data = [0] * 4
+    # Combine to form initial vector
+    data = [hours + weather_data]
+
+    df = pd.DataFrame(data, columns=['hour_0', 'hour_1', 'hour_2', 'hour_3', 'hour_4', 'hour_5', 'hour_6', 'hour_7', 'hour_8', 'hour_9',
+                                  'hour_10', 'hour_11', 'hour_12', 'hour_13', 'hour_14', 'hour_15', 'hour_16', 'hour_17',
+                                  'hour_18', 'hour_19', 'hour_20', 'hour_21', 'hour_22', 'hour_23', 'main_temp', 'main_pressure', 'main_humidity', 'wind_speed'])
+
+    return df
+
+def setValuesDF(df, dict):
+    df['hour_' + dict['hour']][0] = 1
+    df['main_temp'][0] = dict['main_temp']
+    df['main_pressure'][0] = dict['main_pressure']
+    df['main_humidity'][0] = dict['main_humidity']
+    df['wind_speed'][0] = dict['wind_speed']
+
+def generateInput(hour):
+    if len(hour) == 2:
+        hour = hour[1]
+    paramDict = {}
     current_weather = get_weather().get_json()
-    bikeInfo = get_current_availability().get_json()
-    data = (forecast[0]['Main_temp'], forecast[0]['Weather_main'], forecast[0]['Wind_speed'], bikeInfo[int(St1)]['bike_stands'],
-            bikeInfo[int(St1)]['available_bike_stands'], bikeInfo[int(St1)]['available_bikes'], bikeInfo[int(St1)]['status'] )
-    print(data)
-
+    mainTemp = current_weather[0]['main_temp']
+    mainPressure = current_weather[0]['main_pressure']
+    mainHumidity =  current_weather[0]['main_humidity']
+    windSpeed = current_weather[0]['wind_speed']
+    paramDict['hour'] = hour
+    paramDict['main_temp'] = mainTemp
+    paramDict['main_pressure'] = mainPressure
+    paramDict['main_humidity'] = mainHumidity
+    paramDict['wind_speed'] = windSpeed
+    return paramDict
 
 @application.route("/api/station_occupancy_weekly/<int:station_id>")
 def get_station_occupancy_weekly(station_id):
     connection = get_db()
     days = ["Mon", "Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"]
-    df = pd.read_sql_query("SELECT * FROM scraper.dublin_bikes_availability WHERE number = %(number)s LIMIT 0, 18446744073709551615",
+    df = pd.read_sql_query("SELECT * FROM dublin_bikes_availability WHERE number = %(number)s LIMIT 0, 18446744073709551615",
     connection, params={"number":station_id})
     df.set_index('last_update', inplace=True)
     df['weekday'] = df.index.weekday

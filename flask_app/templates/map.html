@@ -3,83 +3,40 @@
       <!-- font for heading, font for body -->
 	  <link href="https://fonts.googleapis.com/css?family=Londrina+Sketch" rel="stylesheet">
 	  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Righteous" rel="stylesheet">
       <!--- link for favicon-->
       <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
       <style>
           /* Document level styling for the entire page*/
-            body{
-                background-color: linen;
-                font-family: 'Josefin Sans', sans-serif;
-            }
-            h1 {
-                justify-content: center;
-                text-align: center;
-                border-bottom-style: groove;
-                border-bottom-color: black;
-                margin-top: 20px;
-                margin-left: 15%;
-                margin-right: 15%;
-                margin-bottom: 20px;
-                font-family: 'Londrina Sketch', cursive;
-                font-size: 80px;
+            body {
+              background-color: #E3DAFF;
+              font-family: 'Josefin Sans', sans-serif;
+              font-size: 20px;
+              margin: 0;
+              color: #3d4852;
+              background-position: center center;
+              background-repeat: no-repeat;
+              background-attachment: fixed;
+              background-size: cover;
             }
 
-            #map_options{
-                margin-left: 10%;
-                margin-right: 10%
+            #header h1 {
+              justify-content: center;
+              text-align: center;
+              font-family: 'Righteous', cursive;
+              font-size: 50px;
+              color: #6B0F1A;
+              width: 100%;
+              padding-top: 15px;
             }
 
-            #checkbox_inline{
-                display: block;
-                float: left;
-                margin-right: 10px;
+            #map {
+              float: left;
+              position: relative;
+              border:1px solid black;
             }
 
-            #map_chart_container{
-                width: 100vw;
-                margin: auto;
-            }
-
-            #map{
-                margin-left: 10%;
-                float: left;
-            }
-
-            #chart_container{
-                margin-left: 10%;
-                float: left;
-            }
-
-            #analytics_chart{
-                float: left;
-            }
-
-            #selection{
-                margin-left: 25%;
-                padding-top: 10px;
-            }
-            #collectTime{
-                position: relative;
-                display:inline-block;
-                padding-left: 200px;
-            }
-            #dropTime{
-                position: relative;
-                display:inline-block;
-                padding-left: 200px;
-            }
-            #selectFrom{
-                position: relative;
-                display: inline-block;
-            }
-            #selectTo{
-                position:relative;
-                display:inline-block;
-            }
-            #container1{
-                padding-bottom: 10px;
-            }
             #legend {
               font-family: Arial, sans-serif;
               background: #fff;
@@ -87,21 +44,103 @@
               margin: 10px;
               border: 3px solid #000;
             }
+
             #legend h3 {
               margin-top: 0;
             }
+
             #legend img {
               vertical-align: middle;
             }
-            select{
-                font-family: 'Josefin Sans', sans-serif;
-                font-size: 15px;
-                padding: 3px;
+
+            #the_whole_thing {
+              margin-left: 3%;
+              margin-right: 3%;
+              margin-top: 10px;
             }
+
+            #map_options {
+              margin-left: 70%;
+            }
+
+            #weather_container {
+              margin-left: 70%;
+            }
+
+            #weather_heading {
+              text-align: center;
+              font-weight: 900;
+              font-size: 20px;
+              margin-bottom: 8px;
+            }
+
+            #weather_image {
+              float: right;
+              margin-right: 50px;
+            }
+
+            #wind_temp {
+              float: left;
+              margin-top: 13px;
+              margin-left: 12%;
+            }
+
+            #chart_container {
+              float: right;
+              margin-right: 2%;
+            }
+
+            #selection {
+              margin-top: 20px;
+              position: relative;
+              float: left;
+              text-align: center;
+              width: 60%;
+            }
+
+            #button {
+              background-color: #6B0F1A;
+              border: none;
+              color: white;
+              padding: 15px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin-top: 20px;
+              border-radius: 5px;
+              float: right;
+              margin-right: 18%;
+            }
+
+            #container1 {
+              float: left;
+              margin-left: 15%;
+              margin-right: 6%;
+            }
+
+            #container2 {
+              float: left;
+              margin-top: 3px;
+            }
+
+            #dropTime {
+              position: relative;
+              display:inline-block;
+              margin-top: 10%;
+            }
+
+            #selectTo {
+              position:relative;
+              display:inline-block;
+              margin-top: 7%;
+            }
+
+
         </style>
       <script>
           //accept json objects from Flask for station info and stand occupancy info//
-          var stations = {{data_stations|tojson }};
+          var stations = {{data_stations|tojson}};
           var availability = {{data_current_availability|tojson}};
 
           //following code is for generating an embedded Google map
@@ -128,7 +167,7 @@
                   var d = availability[i]['available_bike_stands'];
                   var e = availability[i]['available_bikes'];
                   var f = stations[i]['number'];
-                  var g = stations[i]['banking']
+                  var g = stations[i]['banking'];
 
                   //Initially set the pop-up window to say "Loading..."
                   var infowindow = new google.maps.InfoWindow({
@@ -215,7 +254,6 @@
               bikeLayer.setMap(null);
             }
           }
-
     </script>
 
       <!--Separate script tags for the async google maps API call-->
@@ -223,43 +261,61 @@
     </head>
 
     <body>
-    <h1>Dublin Bikes - Journey Planner</h1>
+      <div id="header"><h1>Dublin Bikes - Journey Planner</h1></div>
 
-    <div id="map_options">
-      <form>
-          <fieldset>
-              <legend>Map Options</legend>
-          <div id="checkbox_inline">
-            <input type="checkbox" onchange="displayTraffic(this)"/>
-            <label for="traffic">Traffic</label>
-          </div>
-          <div id="checkbox_inline">
-            <input type="checkbox" onclick="displayBikeInfo(this)"/>
-            <label for="bike_info">Bike Info</label>
-          </div>
-        </fieldset>
-      </form>
-    </div>
+<div id="the_whole_thing">
 
-    <div id="map_chart_container">
-      <div id="map" style="height: 70%; width:80%"></div>
-      <div id="chart_container"></div>
-    </div>
+        <div id="map" style="height: 55%; width:65%"></div>
 
-    <div id="selection">
-        <!--The following code is one single form, that will send results back to the Flask app for use in M-L model-->
-        <!--The divs are empty but populated by JS functions-->
-	    <form method="post">
-		    <div id="container1">
-			<div id="selectFrom">Collect From:</div>
-		    	<div id="collectTime">Collection Time:</div>
-		    </div>
-		    <div id="container2">
-			    <div id="selectTo">Drop-off At:</div>
-			    <div id="dropTime">Drop-off Time:</div>
-		    </div>
-	    <input type='submit'></form>
-    </div>
+      <div id="weather_options_container">
+        <div id="map_options">
+          <form>
+              <fieldset>
+                  <legend>Map Options</legend>
+              <div id="checkbox_inline">
+                <input type="checkbox" onchange="displayTraffic(this)"/>
+                <label for="traffic">Traffic</label>
+              </div>
+              <div id="checkbox_inline">
+                <input type="checkbox" onclick="displayBikeInfo(this)"/>
+                <label for="bike_info">Bike Info</label>
+              </div>
+
+            </fieldset>
+          </form>
+        </div>
+
+        <div id="weather_container">
+          <form>
+              <fieldset>
+                  <legend>Weather Info</legend>
+                    <div id="weather_heading"></div>
+                    <div id="weather_detail">
+                        <div id="wind_temp"></div>
+                        <div id="weather_image"></div>
+                    </div>
+              </fieldset>
+          </form>
+        </div>
+
+        <div id="chart_container"></div>
+        </div>
+
+        <div id="selection">
+            <!--The following code is one single form, that will send results back to the Flask app for use in M-L model-->
+            <!--The divs are empty but populated by JS functions-->
+    	    <form method="post">
+    		    <div id="container1">
+        			<div id="selectFrom">Collect From:</div>
+              <div id="selectTo">Drop-off At:</div>
+    		    </div>
+    		    <div id="container2">
+              <div id="collectTime">Collection Time:</div>
+    			    <div id="dropTime">Drop-off Time:</div>
+    		    </div>
+    	    <input id="button" type='submit'></form>
+        </div>
+</div>
 
     <div id="legend"><h3>Bicycle Availability</h3>
       <div><img src="/static/green_bike_small.png"> High</div>
@@ -293,7 +349,7 @@
                 var id = "Select" + thePlace;
 
                 var text = "<br><select id=" + id + " name =" + id +">";
-               
+
                 //loop through for hours / 5min increments
                 //JS time is "1" and not "01" for single digit hrs/mins - therefore extra handling required for specific values
                 for (var i=0; i<=23; i++){
@@ -443,17 +499,19 @@
                 datasets: [{
                     label: 'Mean Bicycle Availability',
                     data: bikesData,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)'
+                    backgroundColor: 'rgba(255, 99, 132, 0.3)'
                 },
+
                   {
                     label: 'Mean Stand Availability',
                     data: standsData,
-                    backgroundColor: 'rgba(0, 99, 255, 0.2)'
+                    backgroundColor: 'rgba(0, 99, 255, 0.3)'
                   }]
               };
 
               // Get the context of the canvas element we want to select
               var ctx = document.getElementById('analytics_chart').getContext('2d');
+              ctx.fillStyle = "black";
 
               // Instantiate a new chart
               analyticsChart = new Chart(ctx, {
@@ -474,6 +532,136 @@
             });
           }
 
+          // Display Weather info
+          function weatherInfo(){
+
+            // API call to get JSON
+            var url = "/api/current_weather";
+
+            var jsonData = $.ajax({
+              url: url,
+              dataType: 'json',
+            }).done(function (data) {
+
+              // Get weather forcast data from json
+              var weatherInfo = data[0]["weather_main"];
+
+              // This function is from coderwall.com - It is converting a datetime to UNIX
+              Date.prototype.getUnixTime = function() { return this.getTime()/1000|0 };
+              if(!Date.now) Date.now = function() { return new Date(); }
+              Date.time = function() { return Date.now().getUnixTime(); }
+
+              // Get sunset and sunrise time data from json
+              var sunsetTime = data[0]["sys_sunset"];
+              var sunriseTime = data[0]["sys_sunrise"];
+
+              // Convert sunset and sunrise time data to unix time
+              var sunsetToUnix = new Date(sunsetTime).getUnixTime();
+              var sunriseToUnix = new Date(sunriseTime).getUnixTime();
+
+              var temp = Math.round((data[0]["main_temp"] - 273.15));
+              var wind = data[0]["wind_speed"];
+
+              // displaying Temperature
+              var displayTemp = ("Todays Temp: " + temp + " ºC");
+              //document.getElementById("wind_temp").innerHTML = displayTemp;
+
+              // Displaying Wind Speed
+              var displayWind = ("Wind Speed: " + wind + " kph!")
+              document.getElementById("wind_temp").innerHTML = displayTemp + "<p>" + displayWind;
+
+              // This switch statement reads the data from the json file and returns
+              // the matched value with an image and statement describing the current weather
+              switch (weatherInfo) {
+                case "Clouds":
+                  var clouds = document.createElement("img");
+                  clouds.src = "/static/clouds.png";
+                  var src = document.getElementById("weather_image");
+                  src.appendChild(clouds);
+                  var comment = "The Forecast Predicts Cloudy!";
+                  document.getElementById("weather_heading").innerHTML = comment;
+                  break;
+
+                case "Fog":
+                  var fog = document.createElement("img");
+                  fog.src = "/static/fog.png";
+                  var src = document.getElementById("weather_image");
+                  src.appendChild(fog);
+                  var comment = "The Forecast Predicts Fog!";
+                  document.getElementById("weather_heading").innerHTML = comment;
+                  break;
+
+                case "Drizzle":
+                  var drizzle = document.createElement("img");
+                  drizzle.src = "/static/drizzle.png";
+                  var src = document.getElementById("weather_image");
+                  src.appendChild(drizzle);
+                  var comment = "It Is Drizzling Right Now!";
+                  document.getElementById("weather_heading").innerHTML = comment;
+                  break;
+
+                case "Mist":
+                  var mist = document.createElement("img");
+                  mist.src = "/static/mist.png";
+                  var src = document.getElementById("weather_image");
+                  src.appendChild(mist);
+                  var comment = "The Forecast Predicts Mist!";
+                  document.getElementById("weather_heading").innerHTML = comment;
+                  break;
+
+                case "Rain":
+                  var rain = document.createElement("img");
+                  rain.src = "/static/rain.png";
+                  var src = document.getElementById("weather_image");
+                  src.appendChild(rain);
+                  var comment = "It Is Raining Right Now!";
+                  document.getElementById("weather_heading").innerHTML = comment;
+                  break;
+
+                case "Snow":
+                  var snow = document.createElement("img");
+                  snow.src = "/static/snow.png";
+                  var src = document.getElementById("weather_image");
+                  src.appendChild(snow);
+                  var comment = "It Is Snowing Right Now!";
+                  document.getElementById("weather_heading").innerHTML = comment;
+                  break;
+
+                case "Clear":
+                  var currentTime = new Date();
+                  var time = currentTime.getTime()/1000;
+                  console.log(sunsetToUnix);
+                  console.log(time)
+                  if (time >= sunsetToUnix && time <= sunriseToUnix){
+                    var clear = document.createElement("img");
+                    clear.src = "/static/clear_moon.png";
+                    var src = document.getElementById("weather_image");
+                    src.appendChild(clear);
+                    var comment = "Clear Skies Tonight!";
+                    document.getElementById("weather_heading").innerHTML = comment;
+                    break;
+                  }
+                  else if (time >= sunriseToUnix && time <= sunsetToUnix) {
+                    var clear = document.createElement("img");
+                    clear.src = "/static/clear_sun.png";
+                    var src = document.getElementById("weather_image");
+                    src.appendChild(clear);
+                    var comment = "Today Will Be a Sunny Day!";
+                    document.getElementById("weather_heading").innerHTML = comment;
+                    break;
+                  }
+
+                default:
+                  var weather = "Sorry, No Weather Today";
+                  document.getElementById("weather_heading").innerHTML = weather;
+              }
+            });
+          }
+
+          // When page loads weather function is called
+          window.onload=weatherInfo();
+
+
       </script>
 	<script>
 		$(function() {
@@ -492,7 +680,7 @@
         e.preventDefault();
     });
 });
-        
+
 	</script>
   </body>
 </html>

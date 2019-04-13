@@ -149,6 +149,23 @@
             #analytics_chart {
               margin-right: 15px;
             }
+          #results{
+              position: fixed;
+              display: none;
+              border-top-style: solid;
+              border-bottom-style: solid;
+              border-top-width: 1px;
+              border-bottom-width: 4px;
+              padding-left: 6%;
+              padding-top: 1%;
+              padding-bottom: 1%;
+              padding-right: 6%;
+              margin-left: 9%;
+              margin-top: 22%;
+              clear: both;
+              margin-right: 20%;
+              border-color: #095971;
+          }
 
         </style>
       <script>
@@ -172,7 +189,7 @@
               trafficLayer = new google.maps.TrafficLayer();
               bikeLayer = new google.maps.BicyclingLayer();
               
-              setTimeout(legend, 2500);
+              setTimeout(legend, 2000);
               function legend(){
                 var legend = document.getElementById('legend');
                 legend.style.display = 'block';
@@ -231,6 +248,9 @@
               }
 
               
+          }
+          function showResult(){
+              document.getElementById('results').style.display = 'block';
           }
           //simple function that changes the "select" dropdown to the number supplied as the parameter for the function
           function fillSelect(number){
@@ -341,9 +361,9 @@
               <div id="collectTime">Collection Time:</div>
     			    <div id="dropTime">Drop-off Time:</div>
     		    </div>
-    	    <input id="button" type='submit'></form>
+    	    <input id="button" type='submit' onclick="showResult()"></form>
         </div>
-  <p id='test'></p>
+  <div id='results'></div>
 </div>
 
 
@@ -492,7 +512,7 @@
               }
 
               // Add canvas
-              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"320px\" height=\"320px\"></canvas>");
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"420px\" height=\"420px\"></canvas>");
 
               // API call to get JSON
               var base = "/api/station_occupancy_weekly/";
@@ -714,7 +734,7 @@
                 var total_bikes = parseInt(stations_availability[stationNumber2]['bike_stands']);
                 var availability = total_bikes - to_station_num_bikes;
 
-                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + availability + " stands available";
+                document.getElementById('results').innerHTML = "At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br><br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + availability + " stands available.";
             },
             error: function(error) {
                 console.log(error);

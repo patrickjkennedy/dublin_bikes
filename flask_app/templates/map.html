@@ -112,7 +112,7 @@
               background-color: #095971;
               border: none;
               color: white;
-              padding: 15px 32px;
+              padding: 15px;
               text-align: center;
               text-decoration: none;
               display: inline-block;
@@ -188,7 +188,7 @@
               // Create the traffic layer and bike layer variables
               trafficLayer = new google.maps.TrafficLayer();
               bikeLayer = new google.maps.BicyclingLayer();
-              
+
               setTimeout(legend, 2000);
               function legend(){
                 var legend = document.getElementById('legend');
@@ -196,11 +196,11 @@
                 var div = document.createElement('placeholder');
                 div.innerHTML = "<h3>Bicycle Availability</h3> <div><img src='/static/green_bike_small.png'>High</div><div><img src='/static/orange_bike_small.png'> Medium</div> <div><img src='/static/red_bike_small.png'> Low</div>";
                 legend.appendChild(div);
-            
+
                 map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
               }
-              
-              
+
+
 
               //populate the map with marker locations.  locations / availability taken for 2 JSON objects
               for (var i = 0; i<stations.length ; i++){
@@ -247,7 +247,7 @@
                   });
               }
 
-              
+
           }
           function showResult(){
               document.getElementById('results').style.display = 'block';

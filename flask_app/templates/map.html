@@ -10,25 +10,34 @@
       <style>
           /* Document level styling for the entire page*/
             body {
-              background-color: #E3DAFF;
+              background-color: #F0F7EE;
               font-family: 'Josefin Sans', sans-serif;
               font-size: 20px;
               margin: 0;
               color: #3d4852;
-              background-position: center center;
-              background-repeat: no-repeat;
-              background-attachment: fixed;
-              background-size: cover;
             }
 
             #header h1 {
-              justify-content: center;
-              text-align: center;
-              font-family: 'Righteous', cursive;
-              font-size: 50px;
-              color: #6B0F1A;
+              /* justify-content: center;
+              text-align: left; */
+              font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+              font-size: 28px;
+              color: #F0F7EE;
+              padding-left: 20px;
+              float: left;
+            }
+
+            #header img {
+              float: right;
+              margin-right: 25px;
+              margin-top: 10px;
+            }
+
+            #header {
+              background-color: #095971;
               width: 100%;
-              padding-top: 15px;
+              float: left;
+              margin-bottom: 10px;
             }
 
             #map {
@@ -53,7 +62,7 @@
               vertical-align: middle;
             }
 
-            #the_whole_thing {
+            #page_content {
               margin-left: 3%;
               margin-right: 3%;
               margin-top: 10px;
@@ -99,7 +108,7 @@
             }
 
             #button {
-              background-color: #6B0F1A;
+              background-color: #095971;
               border: none;
               color: white;
               padding: 15px 32px;
@@ -136,6 +145,9 @@
               margin-top: 7%;
             }
 
+            #analytics_chart {
+              margin-right: 15px;
+            }
 
         </style>
       <script>
@@ -261,9 +273,12 @@
     </head>
 
     <body>
-      <div id="header"><h1>Dublin Bikes - Journey Planner</h1></div>
+      <div id="header">
+        <h1>Dublin Bikes | Journey Planner</h1>
+        <img src="static/logo.png"/>
+      </div>
 
-<div id="the_whole_thing">
+<div id="page_content">
 
         <div id="map" style="height: 55%; width:65%"></div>
 
@@ -278,7 +293,7 @@
               </div>
               <div id="checkbox_inline">
                 <input type="checkbox" onclick="displayBikeInfo(this)"/>
-                <label for="bike_info">Bike Info</label>
+                <label for="bike_info">Cyclist-Friendly Routes</label>
               </div>
 
             </fieldset>
@@ -467,7 +482,7 @@
               }
 
               // Add canvas
-              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"400px\" height=\"400px\"></canvas>");
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"320px\" height=\"320px\"></canvas>");
 
               // API call to get JSON
               var base = "/api/station_occupancy_weekly/";
@@ -566,7 +581,7 @@
               var wind = data[0]["wind_speed"];
 
               // displaying Temperature
-              var displayTemp = ("Todays Temp: " + temp + " ºC");
+              var displayTemp = ("Today's Temp: " + temp + " ºC");
               //document.getElementById("wind_temp").innerHTML = displayTemp;
 
               // Displaying Wind Speed
@@ -684,11 +699,11 @@
                 if (stationNumber2 > 17){
                     stationNumber2 -= 1;
                 }
-                
+
                 var to_station_num_bikes = parseInt(response['to_station_stand_availability']);
                 var total_bikes = parseInt(stations_availability[stationNumber2]['bike_stands']);
                 var availability = total_bikes - to_station_num_bikes;
-                
+
                 document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + availability + " stands available";
             },
             error: function(error) {

@@ -10,25 +10,34 @@
       <style>
           /* Document level styling for the entire page*/
             body {
-              background-color: #E3DAFF;
+              background-color: #F0F7EE;
               font-family: 'Josefin Sans', sans-serif;
               font-size: 20px;
               margin: 0;
               color: #3d4852;
-              background-position: center center;
-              background-repeat: no-repeat;
-              background-attachment: fixed;
-              background-size: cover;
             }
 
             #header h1 {
-              justify-content: center;
-              text-align: center;
-              font-family: 'Righteous', cursive;
-              font-size: 50px;
-              color: #6B0F1A;
+              /* justify-content: center;
+              text-align: left; */
+              font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+              font-size: 28px;
+              color: #F0F7EE;
+              padding-left: 20px;
+              float: left;
+            }
+
+            #header img {
+              float: right;
+              margin-right: 25px;
+              margin-top: 10px;
+            }
+
+            #header {
+              background-color: #095971;
               width: 100%;
-              padding-top: 15px;
+              float: left;
+              margin-bottom: 10px;
             }
 
             #map {
@@ -43,6 +52,7 @@
               padding: 10px;
               margin: 10px;
               border: 3px solid #000;
+                display: none;
             }
 
             #legend h3 {
@@ -53,7 +63,7 @@
               vertical-align: middle;
             }
 
-            #the_whole_thing {
+            #page_content {
               margin-left: 3%;
               margin-right: 3%;
               margin-top: 10px;
@@ -99,10 +109,10 @@
             }
 
             #button {
-              background-color: #6B0F1A;
+              background-color: #095971;
               border: none;
               color: white;
-              padding: 15px 32px;
+              padding: 15px;
               text-align: center;
               text-decoration: none;
               display: inline-block;
@@ -136,6 +146,26 @@
               margin-top: 7%;
             }
 
+            #analytics_chart {
+              margin-right: 15px;
+            }
+          #results{
+              position: fixed;
+              display: none;
+              border-top-style: solid;
+              border-bottom-style: solid;
+              border-top-width: 1px;
+              border-bottom-width: 4px;
+              padding-left: 6%;
+              padding-top: 1%;
+              padding-bottom: 1%;
+              padding-right: 6%;
+              margin-left: 9%;
+              margin-top: 22%;
+              clear: both;
+              margin-right: 20%;
+              border-color: #095971;
+          }
 
         </style>
       <script>
@@ -158,6 +188,19 @@
               // Create the traffic layer and bike layer variables
               trafficLayer = new google.maps.TrafficLayer();
               bikeLayer = new google.maps.BicyclingLayer();
+
+              setTimeout(legend, 2000);
+              function legend(){
+                var legend = document.getElementById('legend');
+                legend.style.display = 'block';
+                var div = document.createElement('placeholder');
+                div.innerHTML = "<h3>Bicycle Availability</h3> <div><img src='/static/green_bike_small.png'>High</div><div><img src='/static/orange_bike_small.png'> Medium</div> <div><img src='/static/red_bike_small.png'> Low</div>";
+                legend.appendChild(div);
+
+                map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+              }
+
+
 
               //populate the map with marker locations.  locations / availability taken for 2 JSON objects
               for (var i = 0; i<stations.length ; i++){
@@ -204,8 +247,10 @@
                   });
               }
 
-              var legend = document.getElementById('legend');
-              map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+
+          }
+          function showResult(){
+              document.getElementById('results').style.display = 'block';
           }
           //simple function that changes the "select" dropdown to the number supplied as the parameter for the function
           function fillSelect(number){
@@ -261,9 +306,12 @@
     </head>
 
     <body>
-      <div id="header"><h1>Dublin Bikes - Journey Planner</h1></div>
+      <div id="header">
+        <h1>Dublin Bikes | Journey Planner</h1>
+        <img src="static/logo.png"/>
+      </div>
 
-<div id="the_whole_thing">
+<div id="page_content">
 
         <div id="map" style="height: 55%; width:65%"></div>
 
@@ -278,7 +326,7 @@
               </div>
               <div id="checkbox_inline">
                 <input type="checkbox" onclick="displayBikeInfo(this)"/>
-                <label for="bike_info">Bike Info</label>
+                <label for="bike_info">Cyclist-Friendly Routes</label>
               </div>
 
             </fieldset>
@@ -313,17 +361,14 @@
               <div id="collectTime">Collection Time:</div>
     			    <div id="dropTime">Drop-off Time:</div>
     		    </div>
-    	    <input id="button" type='submit'></form>
+    	    <input id="button" type='submit' onclick="showResult()"></form>
         </div>
-  <p id='test'></p>
+  <div id='results'></div>
 </div>
 
 
 
-    <div id="legend"><h3>Bicycle Availability</h3>
-      <div><img src="/static/green_bike_small.png"> High</div>
-      <div><img src="/static/orange_bike_small.png"> Medium</div>
-      <div><img src="/static/red_bike_small.png"> Low</div>
+    <div id="legend">
     </div>
     <!--End of form data section-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
@@ -467,7 +512,7 @@
               }
 
               // Add canvas
-              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"400px\" height=\"400px\"></canvas>");
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"420px\" height=\"420px\"></canvas>");
 
               // API call to get JSON
               var base = "/api/station_occupancy_weekly/";
@@ -566,7 +611,7 @@
               var wind = data[0]["wind_speed"];
 
               // displaying Temperature
-              var displayTemp = ("Todays Temp: " + temp + " ºC");
+              var displayTemp = ("Today's Temp: " + temp + " ºC");
               //document.getElementById("wind_temp").innerHTML = displayTemp;
 
               // Displaying Wind Speed
@@ -684,12 +729,12 @@
                 if (stationNumber2 > 17){
                     stationNumber2 -= 1;
                 }
-                
+
                 var to_station_num_bikes = parseInt(response['to_station_stand_availability']);
                 var total_bikes = parseInt(stations_availability[stationNumber2]['bike_stands']);
                 var availability = total_bikes - to_station_num_bikes;
-                
-                document.getElementById('test').innerHTML = "Result: <br> At <b>" + stations[stationNumber1]['address'] + "</b> at " + response['from_time'] + ":" + response['from_mins'] + " there will be close to " + response['from_station_bike_availability'] + " bikes available." + "<br> At <b>" + stations[stationNumber2]['address'] + "</b> at " + response['to_time'] + ":" + response['to_mins'] + " there will be close to " + availability + " stands available";
+
+                document.getElementById('results').innerHTML = "At <b style='color:#095971'>" + stations[stationNumber1]['address'] + "</b> at <b style='color:#095971'>" + response['from_time'] + ":" + response['from_mins'] + "</b>, there will be close to <b style='color:#095971'>" + response['from_station_bike_availability'] + "</b> bikes available." + "<br><br> At <b style='color:#095971'>" + stations[stationNumber2]['address'] + "</b> at <b style='color:#095971'>" + response['to_time'] + ":" + response['to_mins'] + "</b>, there will be close to <b style='color:#095971'>" + availability + "</b> stands available.";
             },
             error: function(error) {
                 console.log(error);

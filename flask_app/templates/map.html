@@ -9,9 +9,8 @@
       <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
       
       <!--Link for external stylesheet-->
-      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
       
-      <script type="text/javascript" src="{{ url_for('static', filename='map.js') }}"></script>
       <script>
           //accept json objects from Flask for station info and stand occupancy info//
           var stations = {{data_stations|tojson}};
@@ -217,7 +216,7 @@
     <!--End of form data section-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='standard.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='JS/standard.js') }}"></script>
         <script>
             var stations = {{data_stations|tojson }};
             var stations_availability = {{data_current_availability|tojson}};

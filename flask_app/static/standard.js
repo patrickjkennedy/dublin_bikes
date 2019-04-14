@@ -136,7 +136,7 @@
               }
 
               // Add canvas
-              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"420px\" height=\"420px\"></canvas>");
+              $("div#chart_container").append("<canvas id=\"analytics_chart\" width=\"315px\" height=\"315px\"></canvas>");
 
               // API call to get JSON
               var base = "/api/station_occupancy_weekly/";
@@ -332,4 +332,3 @@
 
           // When page loads weather function is called
           window.onload=weatherInfo();
-

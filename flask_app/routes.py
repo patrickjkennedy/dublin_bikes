@@ -108,8 +108,8 @@ def user_input():
     pickle2 = weekday+'_'+ toStation +'.pkl'
 
     #get absolute paths for pickle files
-    path1 = join(dirname(realpath(__file__)), 'static/'+pickle1)
-    path2 = join(dirname(realpath(__file__)), 'static/'+pickle2)
+    path1 = join(dirname(realpath(__file__)), 'static/pickles/'+pickle1)
+    path2 = join(dirname(realpath(__file__)), 'static/pickles/'+pickle2)
 
     #load both pickle files
     with open(path1, 'rb') as handleFrom:

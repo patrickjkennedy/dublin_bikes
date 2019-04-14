@@ -69,7 +69,7 @@ def get_weather():
 def get_current_availability():
     connection = get_db()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM (SELECT * FROM dublin_bikes_availability limit 113) AS T ORDER BY number asc;")
+        cursor.execute("SELECT * FROM (SELECT * FROM dublin_bikes_availability ORDER BY created_at desc LIMIT 113) AS T ORDER BY number asc;")
         data = cursor.fetchall()
     return jsonify(data)
 

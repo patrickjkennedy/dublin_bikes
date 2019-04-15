@@ -238,9 +238,18 @@
 
                     var to_station_num_bikes = parseInt(response['to_station_stand_availability']);
                     var total_bikes = parseInt(stations_availability[stationNumber2]['bike_stands']);
-                    var availability = total_bikes - to_station_num_bikes;
+                    var availability_end = total_bikes - to_station_num_bikes;
+                    
+                    var availability_start = parseInt(response['from_station_bike_availability']);
+                    
+                    if (availability_end < 0){
+                        availability_end = 0;
+                    }
+                    if (availability_start < 0){
+                        availability_start = 0;
+                    }
 
-                    document.getElementById('results').innerHTML = "At <b style='color:#095971'>" + stations[stationNumber1]['address'] + "</b> at <b style='color:#095971'>" + response['from_time'] + ":" + response['from_mins'] + "</b>, there will be close to <b style='color:#095971'>" + response['from_station_bike_availability'] + "</b> bikes available." + "<br><br> At <b style='color:#095971'>" + stations[stationNumber2]['address'] + "</b> at <b style='color:#095971'>" + response['to_time'] + ":" + response['to_mins'] + "</b>, there will be close to <b style='color:#095971'>" + availability + "</b> stands available.";
+                    document.getElementById('results').innerHTML = "At <b style='color:#095971'>" + stations[stationNumber1]['address'] + "</b> at <b style='color:#095971'>" + response['from_time'] + ":" + response['from_mins'] + "</b>, there will be close to <b style='color:#095971'>" + availability_start + "</b> bikes available." + "<br><br> At <b style='color:#095971'>" + stations[stationNumber2]['address'] + "</b> at <b style='color:#095971'>" + response['to_time'] + ":" + response['to_mins'] + "</b>, there will be close to <b style='color:#095971'>" + availability_end + "</b> stands available.";
                 },
                 error: function(error) {
                     console.log(error);

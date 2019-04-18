@@ -4,13 +4,13 @@
 	  <link href="https://fonts.googleapis.com/css?family=Londrina+Sketch" rel="stylesheet">
 	  <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css?family=Righteous" rel="stylesheet">
-      
+
       <!--- link for favicon-->
       <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-      
+
       <!--Link for external stylesheet-->
       <link rel="stylesheet" href="{{ url_for('static', filename='CSS/style.css') }}">
-      
+
       <script>
           //accept json objects from Flask for station info and stand occupancy info//
           var stations = {{data_stations|tojson}};
@@ -93,7 +93,7 @@
 
           }
           function showResult(){
-              document.getElementById('results').style.display = 'block';
+              document.getElementById('results').style.display = 'inline-block';
           }
           //simple function that changes the "select" dropdown to the number supplied as the parameter for the function
           function fillSelect(number){
@@ -206,7 +206,9 @@
     		    </div>
     	    <input id="button" type='submit' onclick="showResult()"></form>
         </div>
-  <div id='results'></div>
+    <div style="width:100%"></div>
+          <div id='results'></div>
+
 </div>
 
 
@@ -236,12 +238,12 @@
                         stationNumber2 -= 1;
                     }
 
-                    var to_station_num_bikes = parseInt(response['to_station_stand_availability']);
+                    var to_station_num_bikes = parseInt(response['to_station_bike_availability']);
                     var total_bikes = parseInt(stations_availability[stationNumber2]['bike_stands']);
                     var availability_end = total_bikes - to_station_num_bikes;
-                    
+
                     var availability_start = parseInt(response['from_station_bike_availability']);
-                    
+
                     if (availability_end < 0){
                         availability_end = 0;
                     }

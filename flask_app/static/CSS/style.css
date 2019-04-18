@@ -81,7 +81,6 @@ body {
             #wind_temp {
               float: left;
               margin-top: 13px;
-              margin-left: 12%;
             }
 
             #chart_container {
@@ -139,7 +138,7 @@ body {
               margin-right: 15px;
             }
           #results{
-              position: fixed;
+              position: relative;
               display: none;
               border-top-style: solid;
               border-bottom-style: solid;
@@ -149,8 +148,7 @@ body {
               padding-top: 1%;
               padding-bottom: 1%;
               padding-right: 6%;
-              margin-top: 18%;
+              margin-top: 2%;
               clear: both;
-              margin-right: 20%;
               border-color: #095971;
           }

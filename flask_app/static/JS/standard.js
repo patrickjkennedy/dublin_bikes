@@ -298,6 +298,16 @@
                   var comment = "It Is Snowing Right Now!";
                   document.getElementById("weather_heading").innerHTML = comment;
                   break;
+                
+                case "Haze":
+                    var haze = document.createElement("img");
+                    haze.src = "/static/fog.png";
+                    var src = document.getElementById("weather_image");
+                    src.appendChild(haze);
+                    var comment = "It's fairly hazy out!";
+                    document.getElementById("weather_heading").innerHTML = comment;
+                      break;
+                      
 
                 case "Clear":
                   var currentTime = new Date();
